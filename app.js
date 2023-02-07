@@ -16,11 +16,11 @@ app.use(bodyParser.json())
 
 app.use(morgan("tiny"));
 app.use(express.json());
-app.use(cors());
-app.use("/employees", employeesRoutes);
-app.use("/timecards", timecardsRoutes);
-app.use("/jobs", jobsRoutes);
-app.use("/auth", authRoutes);
+app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
+app.use("/api/employees", employeesRoutes);
+app.use("/api/timecards", timecardsRoutes);
+app.use("/api/jobs", jobsRoutes);
+app.use("/api/auth", authRoutes);
 
 // 404 Not Found handler * //
 
