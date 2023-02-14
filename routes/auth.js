@@ -21,10 +21,10 @@ router.post("/", async function (req, res, next) {
 
         if (result !== false) {
             let encrypted = encrypt(result.session_id);
-            res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420)  });
+            res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain: 'cascade-front.onrender.com/login' });
 
         }
-       
+
         return res.json(result);
     }
     catch (err) {
