@@ -10,20 +10,26 @@
 const { Client } = require("pg");
 const { getDatabaseUri } = require("./config");
 
-let db;
+let db = new Client({
+  host: process.env.RDS_HOSTNAME,
+  user: process.env.RDS_USERNAME,
+  password: process.env.RDS_PASSWORD,
+  port: process.env.RDS_PORT,
+  connectionString: process.env.DATABASE_URL
+})
 
-if (process.env.NODE_ENV === "production") {
-  db = new Client({
-    connectionString: getDatabaseUri(),
-    ssl: {
-      rejectUnauthorized: false
-    }
-  });
-} else {
-  db = new Client({
-    connectionString: getDatabaseUri()
-  });
-}
+// if (process.env.NODE_ENV === "production") {
+//   db = new Client({
+//     connectionString: getDatabaseUri(),
+//     ssl: {
+//       rejectUnauthorized: false
+//     }
+//   });
+// } else {
+//   db = new Client({
+//     connectionString: getDatabaseUri()
+//   });
+// }
 
 db.connect();
 

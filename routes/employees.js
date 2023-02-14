@@ -18,6 +18,19 @@ router.get("/", async function (req, res, next) {
     }
 });
 
+router.get("/test/v1/dont", async function (req, res, next) {
+
+    try {
+        let result = { text: 'hello!' }
+        return res.json(result)
+
+    }
+    catch (err) {
+
+        return next(err);
+    }
+});
+
 router.get("/params", async function (req, res, next) {
 
     try {
@@ -36,9 +49,9 @@ router.get("/:id", authenticateJWT, ensureLoggedIn, ensureCorrectUserOrManager, 
         let id = req.params.id;
 
         let result = await EmployeeManager.getEmployee(id);
-       
+
         return res.json(result);
-        
+
     }
     catch (err) {
 
@@ -49,7 +62,7 @@ router.get("/:id", authenticateJWT, ensureLoggedIn, ensureCorrectUserOrManager, 
 router.post("/", async function (req, res, next) {
 
     try {
-        
+
         let result = await EmployeeManager.addEmployee(req.body);
         return res.json(result);
     }
@@ -76,7 +89,7 @@ router.put("/:id", async function (req, res, next) {
 router.patch("/:id", async function (req, res, next) {
 
     try {
-       
+
         let id = req.params.id;
         console.log(req.body)
         let result = await EmployeeManager.updateInternalPassword(id, req.body.password, req.body.firstLogin);
