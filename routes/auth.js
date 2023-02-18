@@ -41,7 +41,7 @@ router.post("/logout", async function (req, res, next) {
         // JWT and SESSION are stored in database, session is sent to HTTP ONLY COOKIE
         // on every API request, the database must check the JWT
         // the whoAmI API route can check the session, if it's not expired, say 1 hour, browsing can continue
-        res.clearCookie("sessionId",{ maxAge: ((1000 * 60) * 420), domain:'.cascademetaldesign.work', secure: true, httpOnly: true });
+        res.clearCookie("sessionId",{ domain:'.cascademetaldesign.work', secure: true, httpOnly: true });
         return res.end();
     }
     catch (err) {
