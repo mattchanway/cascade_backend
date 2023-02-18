@@ -15,13 +15,13 @@ router.post("/", async function (req, res, next) {
         // JWT and SESSION are stored in database, session is sent to HTTP ONLY COOKIE
         // on every API request, the database must check the JWT
         // the whoAmI API route can check the session, if it's not expired, say 1 hour, browsing can continue
-        console.log('FOUNDDDDDDDDDDDDDDDDDDDD')
+     
         const { id, password } = req.body;
         let result = await EmployeeManager.authenticate(id, password);
 
         if (result !== false) {
             let encrypted = encrypt(result.session_id);
-            res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), sameSite: 'None', secure: true, httpOnly: true });
+            res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain:'.cascademetaldesign.work', secure: true, httpOnly: true });
 
         }
 
