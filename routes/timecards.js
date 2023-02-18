@@ -1,5 +1,5 @@
 const express = require("express");
-const { authenticateJWT, ensureLoggedIn } = require("../middleware/middlewareAuth");
+const { authenticateJWT, ensureLoggedIn, ensureManager } = require("../middleware/middlewareAuth");
 const EmployeeManager = require("../models/EmployeeManager");
 const router = express.Router();
 const TimecardsManager = require("../models/TimecardsManager");
@@ -8,7 +8,7 @@ const JobsManager = require("../models/JobsManager");
 
 // GET / get all employees
 
-router.get("/", async function (req, res, next) {
+router.get("/", authenticateJWT, ensureManager, async function (req, res, next) {
 
     try {
 
@@ -122,7 +122,7 @@ router.get("/jobs-report", async function (req, res, next) {
     }
 });
 
-router.get("/filter", async function (req, res, next) {
+router.get("/filter", authenticateJWT, ensureManager, async function (req, res, next) {
 
     try {
         console.log("initial req.params", req.query)

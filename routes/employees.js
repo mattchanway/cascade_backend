@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { authenticateJWT, ensureLoggedIn, ensureCorrectUserOrManager } = require("../middleware/middlewareAuth");
+const { authenticateJWT, ensureLoggedIn, ensureCorrectUserOrManager, ensureManager } = require("../middleware/middlewareAuth");
 const EmployeeManager = require("../models/EmployeeManager");
 
 
@@ -18,18 +18,7 @@ router.get("/", async function (req, res, next) {
     }
 });
 
-router.get("/test/v1/dont", async function (req, res, next) {
 
-    try {
-        let result = { text: 'hello!' }
-        return res.json(result)
-
-    }
-    catch (err) {
-
-        return next(err);
-    }
-});
 
 router.get("/params", async function (req, res, next) {
 
@@ -59,7 +48,7 @@ router.get("/:id", authenticateJWT, ensureLoggedIn, ensureCorrectUserOrManager, 
     }
 });
 
-router.post("/", async function (req, res, next) {
+router.post("/", authenticateJWT, ensureManager, async function (req, res, next) {
 
     try {
 
@@ -72,7 +61,7 @@ router.post("/", async function (req, res, next) {
     }
 });
 
-router.put("/:id", async function (req, res, next) {
+router.put("/:id", authenticateJWT, ensureManager, async function (req, res, next) {
 
     try {
         let id = req.params.id;
@@ -86,7 +75,7 @@ router.put("/:id", async function (req, res, next) {
     }
 });
 
-router.patch("/:id", async function (req, res, next) {
+router.patch("/:id", authenticateJWT, ensureLoggedIn, async function (req, res, next) {
 
     try {
 
@@ -102,7 +91,7 @@ router.patch("/:id", async function (req, res, next) {
     }
 });
 
-router.delete("/:id", async function (req, res, next) {
+router.delete("/:id", authenticateJWT, ensureManager, async function (req, res, next) {
 
     try {
         let id = req.params.id;
