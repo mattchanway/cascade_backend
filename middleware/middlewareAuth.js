@@ -65,7 +65,7 @@ function ensureLoggedIn(req, res, next) {
 
 function ensureManager(req, res, next) {
     try {
-        if (!res.locals.user || !res.locals.user.position !== 3) {
+        if (!res.locals.user || res.locals.user.position !== 3) {
             console.log('ENSURE MANAGER')
             throw new Error("Unauthorized");
         }
