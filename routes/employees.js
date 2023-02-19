@@ -51,7 +51,7 @@ router.get("/:id", authenticateJWT, ensureLoggedIn, ensureCorrectUserOrManager, 
 router.post("/", authenticateJWT, ensureManager, async function (req, res, next) {
 
     try {
-
+        console.log('post /employees', req.body)
         let result = await EmployeeManager.addEmployee(req.body);
         return res.json(result);
     }
