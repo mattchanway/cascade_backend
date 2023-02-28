@@ -156,11 +156,20 @@ class TimecardsManager {
                 query += " WHERE " + whereExpressions.join(" AND ");
 
             }
-            console.log(whereExpressions, queryValues)
+            
             const result = await db.query(query, queryValues);
+            let totalOT = 0;
+            let totalReg = 0;
+            let totalExp = 0;
+            for(let i = 0 ; i < result.rows.length ;i++){
+                let curr = result.rows[i];
+                totalOT += curr.overtime;
+                totalReg += curr.reg_time
+                totalExp += curr.expenses
+            }
 
 
-            return result.rows;
+            return {table :result.rows, summary: {totalOT, totalReg, totalExp}};
         }
         catch (e) {
             console.log(e)
