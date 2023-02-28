@@ -26,7 +26,7 @@ class EmployeeManager {
             console.log(formattedDate)
 
             const result = await db.query(`
-        SELECT t.job_id, t.reg_time, t.overtime, t.notes, t.location_submitted, t.timecard_date,
+        SELECT t.job_id, t.reg_time, t.overtime, t.expenses, t.notes, t.location_submitted, t.timecard_date,
         t.time_submitted, t.timecard_id, e.employee_id, e.first_name, e.last_name, e.start_date,
         j.job_name, p.position_name, c.certification_name from timecards t 
         join employees e on t.employee_id = e.employee_id
