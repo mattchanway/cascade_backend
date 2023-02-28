@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const app = express();
 app.use(cookieParser());
+const ORIGIN_URL = process.env.NODE_ENV === 'production' ? 'https://cascademetaldesign.work' : 'http://localhost:3000' 
 const employeesRoutes = require("./routes/employees");
 const timecardsRoutes = require("./routes/timecards");
 const jobsRoutes = require("./routes/jobs");
@@ -17,7 +18,7 @@ app.use(bodyParser.json())
 app.use(morgan("tiny"));
 app.use(express.json());
 // app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
-app.use(cors({ credentials: true, origin: 'https://cascademetaldesign.work' }));
+app.use(cors({ credentials: true, origin: ORIGIN_URL }));
 app.use("/api/employees", employeesRoutes);
 app.use("/api/timecards", timecardsRoutes);
 app.use("/api/jobs", jobsRoutes);

@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { authenticateJWT, ensureLoggedIn } = require("../middleware/middlewareAuth");
 const { SECRET_KEY } = require("../config");
 const { encrypt, decrypt } = require('../encryption');
+const DOMAIN_URL = process.env.NODE_ENV === 'production' ? '.cascademetaldesign.work' : 'localhost'
 
 
 // POST / LOGIN
@@ -21,7 +22,7 @@ router.post("/", async function (req, res, next) {
 
         if (result !== false) {
             let encrypted = encrypt(result.session_id);
-            res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain:'.cascademetaldesign.work', secure: true, httpOnly: true });
+            res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain:DOMAIN_URL, secure: true, httpOnly: true });
 
         }
 
@@ -41,7 +42,7 @@ router.post("/logout", async function (req, res, next) {
         // JWT and SESSION are stored in database, session is sent to HTTP ONLY COOKIE
         // on every API request, the database must check the JWT
         // the whoAmI API route can check the session, if it's not expired, say 1 hour, browsing can continue
-        res.clearCookie("sessionId",{ domain:'.cascademetaldesign.work', secure: true, httpOnly: true });
+        res.clearCookie("sessionId",{ domain: DOMAIN_URL, secure: true, httpOnly: true });
         return res.end();
     }
     catch (err) {

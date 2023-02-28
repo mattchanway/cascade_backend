@@ -10,13 +10,15 @@
 const { Client } = require("pg");
 const { getDatabaseUri } = require("./config");
 
-let db = new Client({
+let db = (process.env.NODE_ENV === "production") ? new Client({
   host: process.env.RDS_HOSTNAME,
   user: process.env.RDS_USERNAME,
   password: process.env.RDS_PASSWORD,
   port: process.env.RDS_PORT,
   connectionString: process.env.DATABASE_URL
-})
+}) : new Client({
+  connectionString: getDatabaseUri()
+});
 
 // if (process.env.NODE_ENV === "production") {
 //   db = new Client({
@@ -26,9 +28,9 @@ let db = new Client({
 //     }
 //   });
 // } else {
-//   db = new Client({
-//     connectionString: getDatabaseUri()
-//   });
+  // db = new Client({
+  //   connectionString: getDatabaseUri()
+  // });
 // }
 
 db.connect();
