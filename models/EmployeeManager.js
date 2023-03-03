@@ -92,9 +92,11 @@ class EmployeeManager {
 
             const result = await db.query(`SELECT * FROM employees WHERE employee_id = $1`, [id]);
             const user = result.rows[0];
+            
 
             if (user) {
-                const isValid = bcrypt.compare(password, user.password);
+                const isValid = await bcrypt.compare(password, user.password);
+                
                 if (isValid) {
                     let { jwtToken, session } = await this.createNewTokens(id, user.position);
                     let fin = await this.updateDatabaseTokens(id, jwtToken, session);

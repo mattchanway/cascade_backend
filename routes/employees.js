@@ -9,6 +9,7 @@ const EmployeeManager = require("../models/EmployeeManager");
 router.get("/", async function (req, res, next) {
 
     try {
+        
         let result = await EmployeeManager.getAllEmployees();
         return res.json(result);
     }
