@@ -34,14 +34,15 @@ class TimecardsManager {
         try{
             let dates = []
             let table = [null,null,null,null,null,null,null,null, null, null, 
-                null, null,null,null,null, null, null, null, null,null,null]
+                null, null,null,null]
                     
             for(let i = 13 ; i >= 0; i-- ){
                 let today = new Date();
                 today.setDate(today.getDate()-i);
-                
-                if(today.getDay() < 5 )dates.push(toISOLocal(today))
+        
+                dates.push(toISOLocal(today))
             }
+            console.log('dates',dates)
 
             let query = db.query(`SELECT * FROM timecards 
                 JOIN jobs ON timecards.job_id = jobs.job_id
@@ -50,7 +51,9 @@ class TimecardsManager {
                 timecard_date = $3 OR timecard_date = $4 OR
                 timecard_date = $5 OR timecard_date = $6 OR
                 timecard_date = $7 OR timecard_date = $8 OR
-                timecard_date = $9 OR timecard_date = $10) ORDER BY timecard_date ASC`, [...dates, employeeId])
+                timecard_date = $9 OR timecard_date = $10 OR
+                timecard_date = $11 OR timecard_date = $12 OR
+                timecard_date = $13 OR timecard_date = $14 ) ORDER BY timecard_date ASC`, [...dates, employeeId])
             
                 function datediff(first, second) {        
                     return Math.floor((second - first) / (1000 * 60 * 60 * 24));
@@ -58,21 +61,15 @@ class TimecardsManager {
 
             let result = await query;
             let today = new Date();
-            let todayInd = today.getDay()+14
+            let todayInd = today.getDay()+7
             while(result.rows.length){
                 let curr = result.rows.pop();
                 let currDate = curr.timecard_date;
                 let diff = datediff(currDate, today)
                 table[todayInd-diff] = curr
             }
-            // let final = [[],[],[]]
-
-            // for(let i = 0 ; i < table.length ; i++){
-            //     if(i <7) final[0].push(table[i]);
-            //     else if(i < 14)final[1].push(table[i])
-            //     else{final[2].push(table[i])}
-            // }
-
+            console.log('heyyy',table)
+       
             return table
         }
         catch(e){
