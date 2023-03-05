@@ -21,6 +21,19 @@ router.get("/", authenticateJWT, ensureManager, async function (req, res, next) 
     }
 });
 
+router.get("/reports/weekly/:id", authenticateJWT, async function (req, res, next) {
+
+    try {
+
+        let result = await TimecardsManager.getTimecardsIndiv(req.params.id);
+        return res.json(result);
+    }
+    catch (err) {
+
+        return next(err);
+    }
+});
+
 router.get("/indiv/:id", async function (req, res, next) {
 
     try {

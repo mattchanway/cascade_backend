@@ -96,7 +96,12 @@ router.post("/password-forgotten-update/:token", async function (req, res, next)
         let { password } = req.body;
 
         let result = await EmployeeManager.updateForgottenPassword(token, password);
-        res.cookie('sessionId', result.session, { maxAge: 99999999999 * 600 });
+        
+        if(result !== false){
+        let encrypted = encrypt(result.session);
+        res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain:DOMAIN_URL, secure: true, httpOnly: true });
+        }
+
         return res.json(result.user);
 
     }

@@ -67,7 +67,7 @@ router.patch("/:id", authenticateJWT, ensureManager, async function (req, res, n
     try {
         
         let id = req.params.id;
-        let result = await JobsManager.deactivateJob(id);
+        let result = await JobsManager.updateJobStatus(id, req.body.status);
 
         return res.json(result);
     }

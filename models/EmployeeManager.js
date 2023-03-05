@@ -274,14 +274,13 @@ class EmployeeManager {
             const hashedPassword = await bcrypt.hash(newPassword, 10);
             const id = verifiedUser.employee_id;
 
-            const FAKE_TEMP_PASSWORD = newPassword;
-            let userQuery = await db.query(`UPDATE employees SET password = $1, password_reset_token = $2 WHERE employee_id = $3 returning *`, [FAKE_TEMP_PASSWORD, null, id]);
+            let userQuery = await db.query(`UPDATE employees SET password = $1, password_reset_token = $2 WHERE employee_id = $3 returning *`, [hashedPassword, null, id]);
 
             let user = userQuery.rows[0]
             let { jwtToken, session } = await this.createNewTokens(user.employee_id, user.position)
             let updateUser = await this.updateDatabaseTokens(user.employee_id, jwtToken, session);
             delete user.password;
-            return { user, jwtToken, session };
+            return { user, session };
         }
 
         catch (e) {
