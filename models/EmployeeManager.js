@@ -116,7 +116,7 @@ class EmployeeManager {
         try {
             const res2 = await db.query(`UPDATE employees SET jwt_token =$1, session_id = $2 WHERE employee_id =$3 returning *`, [jwt, session, id]);
             const loggedInUser = res2.rows[0]
-            console.log('UPDATED DATABASE TOKENS', loggedInUser.session_id)
+           
             delete loggedInUser.password;
             return loggedInUser;
         }
@@ -181,12 +181,12 @@ class EmployeeManager {
                 employee_id: employee_id,
                 exp: Date.now() + ((1000 * 60) * 15)
             };
-            console.log("Inside createPasswordToken", employee_id)
+          
             let passwordToken = jwt.sign(passwordPayload, SECRET_KEY);
 
             let insertQuery = await db.query(`UPDATE employees set password_reset_token = $1 WHERE
             employee_id = $2 returning password_reset_token, email`, [passwordToken, employee_id]);
-            if (insertQuery.rows.length === 0) throw new Error("User not found.");
+            if (insertQuery.rows.length === 0) return({userNotFound: "User Not Found"})
 
             return { passwordToken: insertQuery.rows[0].password_reset_token, email: insertQuery.rows[0].email }
         }
@@ -202,8 +202,11 @@ class EmployeeManager {
 
         try {
             let res = await db.query(`SELECT * FROM employees WHERE session_id = $1`, [sessionId]);
+            if(!res.rows.length) return {noUser: "unable to auth" }
             const user = res.rows[0];
             delete user.password;
+
+
 
             return user;
         }
@@ -218,7 +221,7 @@ class EmployeeManager {
         try {
             let res = await db.query(`SELECT jwt_token FROM employees WHERE session_id = $1`, [sessionId]);
             const user = res.rows[0];
-            console.log('INSIDE GETJWT',user, sessionId)
+           
 
             return user.jwt_token;
         }
@@ -249,7 +252,7 @@ class EmployeeManager {
         try {
 
             let queryRes = await db.query(`SELECT * FROM employees WHERE password_reset_token = $1`, [token]);
-            if (queryRes.rows.length === 0) throw new Error('No user found');
+            if (queryRes.rows.length === 0) return null;
             const user = queryRes.rows[0];
             delete user.password;
             return user;

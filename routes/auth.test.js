@@ -26,85 +26,172 @@ afterAll(commonAfterAll);
 // token rotated and can still make a new timecard. 5) User can change their password, get their token and post a timecard
 // 6) User can have their sessionId expire and their token will not work. 7) Test that only manager can do admin functions
 
-describe("POST /auth", function() {
-    test("authentication  and sets a cookie on the res object", async function(){
+describe("POST /auth", function () {
+    test("authentication, setting cookie on res object, and logging out removes cookie", async function () {
 
-    let shawnIdStr = await getShawnId();
-    let shawnId = shawnIdStr 
-        
- const resp = await request(app).post("/api/auth").send({
-    id: shawnId,
-    password: "password1"
- })
+        let shawnIdStr = await getShawnId('Shawn');
+        let shawnId = shawnIdStr
 
-//  DATE IS TECHNICALLY NOT CORRECT
-    expect(resp.body).toEqual({
-        employee_id: expect.any(Number),
-        first_name: "Shawn",
-        last_name: "Rostas",
-        email: "matthewchanway@gmail.com",
-        position: expect.any(Number),
-        certification: expect.any(Number),
-        start_date: expect.any(String),
-        jwt_token: expect.any(String),
-        session_id: expect.any(String),
-        password_reset_token: null,
-        first_login: true
-    })
-    expect(resp.header['set-cookie'][0].slice(0,9)).toEqual('sessionId')
-
-    const logoutResp = request(app).get("/api/auth/logout").set("sessionId", "abc");
-    expect(logoutResp.header["set-cookie"]).toBeUndefined();
-
-    })
-
-    test("authentication denies access with bad password", async function(){
-
-        let shawnIdStr = await getShawnId();
-        let shawnId = shawnIdStr   
-     const resp = await request(app).post("/api/auth").send({
-        id: shawnId,
-        password: "password47"
-     })
-        expect(resp.body).toEqual(false)
+        const resp = await request(app).post("/api/auth").send({
+            id: shawnId,
+            password: "password1"
         })
 
-    test("whoamI does not work with a bad sessionId", async function(){
+        //  DATE IS TECHNICALLY NOT CORRECT
+        expect(resp.body).toEqual({
+            employee_id: expect.any(Number),
+            first_name: "Shawn",
+            last_name: "Rostas",
+            email: "matthewchanway@gmail.com",
+            position: expect.any(Number),
+            certification: expect.any(Number),
+            start_date: expect.any(String),
+            jwt_token: expect.any(String),
+            session_id: expect.any(String),
+            password_reset_token: null,
+            first_login: true
+        })
+        expect(resp.header['set-cookie'][0].slice(0, 9)).toEqual('sessionId')
 
-        const resp = await request(app).get("/api/auth/whoami").set("sessionId", "abc");
-        expect(resp.body).toEqual({noUser: "unable to auth"})
+        const logoutResp = request(app).get("/api/auth/logout").set("Cookie", "sessionId=abc");
+        expect(logoutResp.header["set-cookie"]).toBeUndefined();
+
     })
 
-    test("whoamI works with a valid sessionId", async function(){
+    test("authentication denies access with bad password", async function () {
 
-
-        let shawnIdStr = await getShawnId();
-    let shawnId = shawnIdStr 
-        
- const loginResp = await request(app).post("/api/auth").send({
-    id: shawnId,
-    password: "password1"
- })
-
- let encryptedCookie = (loginResp.header['set-cookie'][0].split(';')[0].slice(10))
-
- const whoAmIResp = await request(app).get("/api/auth/whoami").set("Cookie", `sessionId=${encryptedCookie}`);
-
- expect(whoAmIResp.body).toEqual({
-    employee_id: expect.any(Number),
-    first_name: "Shawn",
-    last_name: "Rostas",
-    email: "matthewchanway@gmail.com",
-    position: expect.any(Number),
-    certification: expect.any(Number),
-    start_date: expect.any(String),
-    jwt_token: expect.any(String),
-    session_id: expect.any(String),
-    password_reset_token: null,
-    first_login: true
-})
-       
+        let shawnIdStr = await getShawnId('Shawn');
+        let shawnId = shawnIdStr
+        const resp = await request(app).post("/api/auth").send({
+            id: shawnId,
+            password: "password47"
+        })
+        expect(resp.body).toEqual(false)
     })
+
+    test("whoamI does not work with a bad sessionId", async function () {
+
+        const resp = await request(app).get("/api/auth/whoami").set("Cookie", "sessionId=abc");
+        expect(resp.body).toEqual({ noUser: "unable to auth" })
+    })
+
+    test("whoamI works with a valid sessionId", async function () {
+
+
+        let shawnIdStr = await getShawnId('Shawn');
+        let shawnId = shawnIdStr
+
+        const loginResp = await request(app).post("/api/auth").send({
+            id: shawnId,
+            password: "password1"
+        })
+
+        let encryptedCookie = (loginResp.header['set-cookie'][0].split(';')[0].slice(10))
+
+        const whoAmIResp = await request(app).get("/api/auth/whoami").set("Cookie", `sessionId=${encryptedCookie}`);
+
+        expect(whoAmIResp.body).toEqual({
+            employee_id: expect.any(Number),
+            first_name: "Shawn",
+            last_name: "Rostas",
+            email: "matthewchanway@gmail.com",
+            position: expect.any(Number),
+            certification: expect.any(Number),
+            start_date: expect.any(String),
+            jwt_token: expect.any(String),
+            session_id: expect.any(String),
+            password_reset_token: null,
+            first_login: true
+        })
+
+    })
+
+    test("create forgot password token works with valid employee ID", async function () {
+        let shawnIdStr = await getShawnId('Shawn');
+
+        const passwordResp = await request(app).post(`/api/auth/password-token/${shawnIdStr}`);
+        expect(passwordResp.body).toEqual({
+            passwordToken: expect.any(String),
+            email: expect.any(String)
+        })
+    })
+
+    test("create forgot password token does not work with invalid employee ID", async function () {
+
+        const passwordResp = await request(app).post(`/api/auth/password-token/0`);
+        expect(passwordResp.body).toEqual({
+            userNotFound: "User Not Found"
+        })
+    })
+
+    test("valid token updates password, and user can login with this password", async function () {
+
+        let shawnIdStr = await getShawnId('Shawn');
+
+        let tokenResp = await request(app).post(`/api/auth/password-token/${shawnIdStr}`);
+        let token = tokenResp.body.passwordToken;
+
+        let updatePasswordResp = await request(app).post(`/api/auth/password-forgotten-update/${token}`).send({ password: "newPassword25" });
+
+        expect(updatePasswordResp.body).toEqual({
+            employee_id: expect.any(Number),
+            first_name: "Shawn",
+            last_name: "Rostas",
+            email: "matthewchanway@gmail.com",
+            position: expect.any(Number),
+            certification: expect.any(Number),
+            start_date: expect.any(String),
+            jwt_token: null,
+            session_id: null,
+            password_reset_token: null,
+            first_login: true
+        })
+        expect(updatePasswordResp.header['set-cookie'][0].slice(0, 9)).toEqual('sessionId')
+        let sessionId = updatePasswordResp.header['set-cookie'][0].slice(10)
+
+        request(app).get("/api/auth/logout").set("Cookie", `sessionId=${sessionId}`);
+
+        const newLoginResp = await request(app).post("/api/auth").send({
+            id: shawnIdStr,
+            password: "newPassword25"
+        })
+
+        //  DATE IS TECHNICALLY NOT CORRECT
+        expect(newLoginResp.body).toEqual({
+            employee_id: expect.any(Number),
+            first_name: "Shawn",
+            last_name: "Rostas",
+            email: "matthewchanway@gmail.com",
+            position: expect.any(Number),
+            certification: expect.any(Number),
+            start_date: expect.any(String),
+            jwt_token: expect.any(String),
+            session_id: expect.any(String),
+            password_reset_token: null,
+            first_login: true
+        })
+
+
+
+
+    })
+
+    test("invalid token does not update a password", async function () {
+
+        let shawnIdStr = await getShawnId('Shawn');
+
+        let updatePasswordResp = await request(app).post(`/api/auth/password-forgotten-update/abc123`).send({ password: "newPassword25" });
+
+        expect(updatePasswordResp.body).toEqual({
+            invalidToken: "Invalid token."
+
+        })
+
+
+
+    })
+
+
 
 
 

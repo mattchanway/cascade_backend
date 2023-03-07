@@ -6,7 +6,7 @@ const EmployeeManager = require("../models/EmployeeManager");
 
 // GET / get all employees
 
-router.get("/", async function (req, res, next) {
+router.get("/", authenticateJWT, ensureLoggedIn, ensureManager, async function (req, res, next) {
 
     try {
         
@@ -49,7 +49,7 @@ router.get("/:id", authenticateJWT, ensureLoggedIn, ensureCorrectUserOrManager, 
     }
 });
 
-router.post("/", authenticateJWT, ensureManager, async function (req, res, next) {
+router.post("/", authenticateJWT, ensureLoggedIn, ensureManager, async function (req, res, next) {
 
     try {
         console.log('post /employees', req.body)

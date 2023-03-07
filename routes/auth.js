@@ -51,25 +51,9 @@ router.post("/logout", async function (req, res, next) {
     }
 });
 
-router.post("/password-update/:id", authenticateJWT, ensureLoggedIn, async function (req, res, next) {
 
-    try {
-        const user = res.locals.user;
-        let employee_id = user.employee_id;
-        let position = user.position;
-
-        let passwordToken = await EmployeeManager.createPasswordToken(employee_id, position);
-        return res.json(passwordToken);
-    }
-    catch (e) {
-        return next(e);
-    }
-
-
-})
-
-// Create a password token for a user ID
-router.get("/password-token/:id", async function (req, res, next) {
+// Create a forgot-password token for a user ID
+router.post("/password-token/:id", async function (req, res, next) {
 
     try {
         const id = req.params.id;
@@ -96,11 +80,12 @@ router.post("/password-forgotten-update/:token", async function (req, res, next)
         let { password } = req.body;
 
         let result = await EmployeeManager.updateForgottenPassword(token, password);
+        console.log(result)
+        if(result === false) return res.json({invalidToken: "Invalid token."})
         
-        if(result !== false){
         let encrypted = encrypt(result.session);
         res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain:DOMAIN_URL, secure: true, httpOnly: true });
-        }
+        
 
         return res.json(result.user);
 
@@ -125,6 +110,7 @@ router.get("/whoami", async function (req, res, next) {
             let decryptObj = { iv: split[0], encryptedData: split[1] }
             let decrypted = decrypt(decryptObj)
             let userResult = await EmployeeManager.whoAmI(decrypted);
+           
             return res.json(userResult);
         }
         return res.json({ noUser: "unable to auth" });

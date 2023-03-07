@@ -28,7 +28,7 @@ const CRYPTO_KEY = crypto.scryptSync(CRYPTO_PASSWORD, SALT, 32);
 
     let iv = Buffer.from(text.iv, 'hex')
    let encryptedText = Buffer.from(text.encryptedData, 'hex');
-   console.log('INSIDE DECRYPTFN', encryptedText)
+  
  let decipher = crypto.createDecipheriv(
         'aes-256-cbc', CRYPTO_KEY, iv);
  
