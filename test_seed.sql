@@ -26,12 +26,7 @@ CREATE TABLE certifications(
     certification_pay FLOAT
 );
 
--- CREATE TABLE documents(
---     document_id SERIAL PRIMARY KEY,
---     document_job_id TEXT references jobs
---     document_name TEXT NOT NULL,
---     document_link TEXT NOT NULL
--- );
+
 
 CREATE TABLE employees (
     employee_id SERIAL PRIMARY KEY,
@@ -42,8 +37,6 @@ CREATE TABLE employees (
     position int NOT NULL references positions,
     certification int NOT NULL references certifications,
     start_date DATE NOT NULL,
-    address TEXT NOT NULL,
-    photo TEXT DEFAULT 'https://www.seekpng.com/png/detail/115-1150456_avatar-generic-avatar.png',
     jwt_token VARCHAR,
     session_id VARCHAR,
     password_reset_token VARCHAR,
@@ -61,5 +54,4 @@ CREATE TABLE timecards (
     time_submitted TIMESTAMP default CURRENT_TIMESTAMP,
     location_submitted TEXT,
     notes TEXT);
-
 

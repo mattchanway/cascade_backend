@@ -125,7 +125,6 @@ router.get("/whoami", async function (req, res, next) {
             let decryptObj = { iv: split[0], encryptedData: split[1] }
             let decrypted = decrypt(decryptObj)
             let userResult = await EmployeeManager.whoAmI(decrypted);
-            console.log(userResult)
             return res.json(userResult);
         }
         return res.json({ noUser: "unable to auth" });

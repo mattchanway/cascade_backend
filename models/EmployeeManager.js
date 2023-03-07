@@ -23,7 +23,7 @@ class EmployeeManager {
             const date = new Date();
             date.setDate(date.getDate() - 30);
             let formattedDate = date.toLocaleDateString();
-            console.log(formattedDate)
+        
 
             const result = await db.query(`
         SELECT t.job_id, t.reg_time, t.overtime, t.expenses, t.notes, t.location_submitted, t.timecard_date,
