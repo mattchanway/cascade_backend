@@ -34,11 +34,11 @@ async function commonBeforeAll(){
 
 
 }
-    async function getShawnId(name){
-      const shawnQuery = await db.query(`SELECT * FROM employees WHERE first_name = $1`, [name]);
+    async function getEmployeeId(name){
+      const query = await db.query(`SELECT * FROM employees WHERE first_name = $1`, [name]);
      
-        let shawnId = shawnQuery.rows[0].employee_id
-        return shawnId;
+        let employeeId = query.rows[0].employee_id
+        return employeeId;
     }
    
     async function commonBeforeEach() {
@@ -63,6 +63,6 @@ async function commonBeforeAll(){
         commonBeforeEach,
         commonAfterEach,
         commonAfterAll,
-        getShawnId
+        getEmployeeId
       };
 

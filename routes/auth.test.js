@@ -9,7 +9,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     commonAfterAll,
-    getShawnId
+    getEmployeeId
 } = require("./_testCommon");
 
 
@@ -29,7 +29,7 @@ afterAll(commonAfterAll);
 describe("POST /auth", function () {
     test("authentication, setting cookie on res object, and logging out removes cookie", async function () {
 
-        let shawnIdStr = await getShawnId('Shawn');
+        let shawnIdStr = await getEmployeeId('Shawn');
         let shawnId = shawnIdStr
 
         const resp = await request(app).post("/api/auth").send({
@@ -60,7 +60,7 @@ describe("POST /auth", function () {
 
     test("authentication denies access with bad password", async function () {
 
-        let shawnIdStr = await getShawnId('Shawn');
+        let shawnIdStr = await getEmployeeId('Shawn');
         let shawnId = shawnIdStr
         const resp = await request(app).post("/api/auth").send({
             id: shawnId,
@@ -78,7 +78,7 @@ describe("POST /auth", function () {
     test("whoamI works with a valid sessionId", async function () {
 
 
-        let shawnIdStr = await getShawnId('Shawn');
+        let shawnIdStr = await getEmployeeId('Shawn');
         let shawnId = shawnIdStr
 
         const loginResp = await request(app).post("/api/auth").send({
@@ -107,7 +107,7 @@ describe("POST /auth", function () {
     })
 
     test("create forgot password token works with valid employee ID", async function () {
-        let shawnIdStr = await getShawnId('Shawn');
+        let shawnIdStr = await getEmployeeId('Shawn');
 
         const passwordResp = await request(app).post(`/api/auth/password-token/${shawnIdStr}`);
         expect(passwordResp.body).toEqual({
@@ -126,7 +126,7 @@ describe("POST /auth", function () {
 
     test("valid token updates password, and user can login with this password", async function () {
 
-        let shawnIdStr = await getShawnId('Shawn');
+        let shawnIdStr = await getEmployeeId('Shawn');
 
         let tokenResp = await request(app).post(`/api/auth/password-token/${shawnIdStr}`);
         let token = tokenResp.body.passwordToken;
@@ -178,7 +178,7 @@ describe("POST /auth", function () {
 
     test("invalid token does not update a password", async function () {
 
-        let shawnIdStr = await getShawnId('Shawn');
+        let shawnIdStr = await getEmployeeId('Shawn');
 
         let updatePasswordResp = await request(app).post(`/api/auth/password-forgotten-update/abc123`).send({ password: "newPassword25" });
 

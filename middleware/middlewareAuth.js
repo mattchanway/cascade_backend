@@ -16,13 +16,15 @@ const { decrypt, encrypt } = require("../encryption");
 async function authenticateJWT(req, res, next) {
     try {
         if (req.cookies.sessionId) {
-
+        
             let split = req.cookies.sessionId.split(':.');
             let decryptObj = { iv: split[0], encryptedData: split[1] }
             let decrypted = decrypt(decryptObj)
             const sessionTokenPayload = jwt.verify(decrypted, SECRET_KEY);
+            
             const dbFetch = await EmployeeManager.getJwt(decrypted);
             const dbTokenPayload = jwt.verify(dbFetch, SECRET_KEY);
+            
             if (dbTokenPayload && Date.now() >= dbTokenPayload.exp) {
                 // console.log('ROTATING TOKEN')
                 const jwtToken = await EmployeeManager.rotateJwtToken(sessionTokenPayload.employee_id, sessionTokenPayload.position)
@@ -35,11 +37,11 @@ async function authenticateJWT(req, res, next) {
             // console.log("NO ROTATION")
             return next();
         }
-       
+      
         return next();
     } catch (err) {
         
-        // console.log(err)
+     
         return next();
     }
 }
@@ -51,8 +53,9 @@ async function authenticateJWT(req, res, next) {
 
 function ensureLoggedIn(req, res, next) {
     try {
+   
         if (!res.locals.user) throw new Error("Unauthorized");
-        // console.log("ENSURELOGGEDIN", res.locals.user)
+        
         return next();
     } catch (err) {
         return next(err);
@@ -80,8 +83,8 @@ function ensureManager(req, res, next) {
 function ensureCorrectUserOrManager(req, res, next) {
     try {
         const user = res.locals.user;
-        // console.log('ENSURE CORRECT USER OR MANAGER', user)
-        if ((user.position !== 3 && user.employee_id !== req.params.id)) {
+    
+        if ((user.position !== 3 && user.employee_id !== +req.params.id)) {
             throw new Error("Unauthorized, must be manager or same user");
         }
         return next();
