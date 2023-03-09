@@ -184,8 +184,9 @@ describe("POST /auth", function () {
 
         expect(updatePasswordResp.body).toEqual({
             invalidToken: "Invalid token."
-
         })
+
+        
 
 
 

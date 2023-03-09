@@ -65,9 +65,9 @@ class JobsManager {
         try {
             if (status !== true && status !== false) throw new Error("Status must be true or false.");
             const result = await db.query(`
-        UPDATE jobs SET active = $2 WHERE job_id = $1 returning job_id`, [id, status]);
+        UPDATE jobs SET active = $2 WHERE job_id = $1 returning *`, [id, status]);
             if (result.rows.length === 0) throw new Error("Job not found.");
-            return result.rows;
+            return result.rows[0];
 
         }
         catch (e) {

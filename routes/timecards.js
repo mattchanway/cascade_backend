@@ -34,20 +34,20 @@ router.get("/reports/weekly/:id", authenticateJWT, async function (req, res, nex
     }
 });
 
-router.get("/indiv/:id", async function (req, res, next) {
+// router.get("/indiv/:id", async function (req, res, next) {
 
-    try {
-        let id = req.params.id;
+//     try {
+//         let id = req.params.id;
 
-        let result = await TimecardsManager.getTimecard(id);
+//         let result = await TimecardsManager.getTimecard(id);
 
-        return res.json(result);
-    }
-    catch (err) {
+//         return res.json(result);
+//     }
+//     catch (err) {
 
-        return next(err);
-    }
-});
+//         return next(err);
+//     }
+// });
 
 router.post("/", authenticateJWT, ensureLoggedIn, async function (req, res, next) {
 
@@ -62,7 +62,7 @@ router.post("/", authenticateJWT, ensureLoggedIn, async function (req, res, next
     }
 });
 
-router.put("/:id", async function (req, res, next) {
+router.put("/:id", authenticateJWT, ensureManager, async function (req, res, next) {
 
     try {
         let id = req.params.id;

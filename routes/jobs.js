@@ -6,7 +6,7 @@ const { authenticateJWT, ensureLoggedIn, ensureCorrectUserOrManager, ensureManag
 
 // GET / get all jobs
 
-router.get("/",  async function (req, res, next) {
+router.get("/",authenticateJWT, ensureLoggedIn,  async function (req, res, next) {
 
     try {
         if(!req.cookies.sessionId) return res.json({noUser:'No User'});
@@ -19,7 +19,7 @@ router.get("/",  async function (req, res, next) {
     }
 });
 
-router.get("/:id", async function (req, res, next) {
+router.get("/:id",authenticateJWT, ensureLoggedIn, async function (req, res, next) {
 
     try {
         
