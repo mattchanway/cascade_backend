@@ -36,7 +36,7 @@ async function commonBeforeAll(){
 }
     async function getEmployeeId(name){
       const query = await db.query(`SELECT * FROM employees WHERE first_name = $1`, [name]);
-     
+      console.log('QUERY', query.rows)
         let employeeId = query.rows[0].employee_id
         return employeeId;
     }

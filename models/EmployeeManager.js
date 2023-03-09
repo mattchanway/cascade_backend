@@ -72,7 +72,8 @@ class EmployeeManager {
 
             const { first_name, last_name, email, position, certification, start_date } = data;
             const INIT_PASSWORD = await bcrypt.hash(`${last_name}123`, 10);
-            const result = await db.query(`INSERT INTO employees (password,first_name, last_name, email, position, certification, start_date) 
+            const result = await db.query(`INSERT INTO employees (password,first_name, last_name, 
+                email, position, certification, start_date) 
             VALUES($1, $2, $3, $4, $5, $6,$7) returning *`, [INIT_PASSWORD, first_name,
                 last_name, email, position, certification, start_date]);
 
@@ -299,6 +300,7 @@ class EmployeeManager {
 
             // let auth = await this.authenticate(id, oldPassword);
             // if (!auth) return false;
+       
             const query = `UPDATE employees SET password = $1 ${firstLogin === true ? ' ,first_login = false' : ''}
             WHERE employee_id = $2 returning *`;
             
@@ -320,16 +322,18 @@ class EmployeeManager {
     static async editEmployee(data, employeeId) {
 
         try {
-
-            const { first_name, last_name, position, certification, start_date, address, photo } = data;
+            console.log(data)
+            const { first_name, last_name, position, certification, start_date, email } = data;
             const result = await db.query(`
         UPDATE employees SET first_name = $1, last_name = $2, position = $3, certification = $4,
-        start_date = $5, address = $6, photo = $7
-        WHERE employee_id = $8 RETURNING *`, [first_name, last_name, position, certification, start_date, address, photo, employeeId]);
-            return result.rows;
+        start_date = $5, email = $6
+        WHERE employee_id = $7 RETURNING *`, [first_name, last_name, position, certification, start_date, email, +employeeId]);
+            let user = result.rows[0];
+            delete user.password;
+            return user;
         }
         catch (e) {
-
+            console.log(e)
             return e;
         }
     }

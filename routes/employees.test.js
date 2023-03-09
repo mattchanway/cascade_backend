@@ -12,7 +12,7 @@ const {
     getEmployeeId
 } = require("./_testCommon");
 
-async function authenticateEmployeeAndGetSessionId(name, userPassword){
+async function authenticateEmployeeAndGetSessionId(name, userPassword) {
     let idStr = await getEmployeeId(name);
 
     let authResp = await request(app).post("/api/auth").send({
@@ -27,13 +27,13 @@ async function authenticateEmployeeAndGetSessionId(name, userPassword){
 
 //     let resp = await request(app).get("/api/employees/params");
 //     let c =resp.body.certifications[0].certification_id
-    
+
 //     let managerId = -1;
 
 //     for(let z = 0; z < resp.body.positions.length ; z++){
-       
+
 //         let curr = resp.body.positions[z];
-       
+
 //         if(curr.position_name === 'Manager') managerId = curr.position_id
 //     }
 
@@ -48,16 +48,16 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
-describe("Employees", function(){
+describe("Employees", function () {
 
     test("Manager creating a new labourer, labourer CANNOT access his manager's profile, manager CAN access labourer", async function () {
 
 
         let sessionIdShawn = await authenticateEmployeeAndGetSessionId('Shawn', 'password1');
-    
-        
+
+
         let addNewEmpResp = await request(app).post("/api/employees").set("Cookie", `sessionId=${sessionIdShawn}`).send({
-            first_name: 'Matt', last_name: 'Chanway', email: 'notmattchanway@gmail.com', position : 1, certification: 1, start_date :'2023-01-01' 
+            first_name: 'Matt', last_name: 'Chanway', email: 'notmattchanway@gmail.com', position: 1, certification: 1, start_date: '2023-01-01'
         })
 
         expect(addNewEmpResp.body).toEqual({
@@ -94,9 +94,9 @@ describe("Employees", function(){
                 start_date: expect.any(String)
             }
         })
-      
+
         let mattSelfView = await request(app).get(`/api/employees/${mattId}`).set("Cookie", `sessionId=${mattSession}`);
-        
+
         expect(mattSelfView.body).toEqual({
             timecardsData: expect.any(Array),
             userData: {
@@ -109,35 +109,34 @@ describe("Employees", function(){
             }
         })
 
-    
+
 
     })
 
     test("Manager can edit employee", async function () {
 
         let sessionIdShawn = await authenticateEmployeeAndGetSessionId('Shawn', 'password1');
-        let mattId = getEmployeeId('Matt')
-        
         await request(app).post("/api/employees").set("Cookie", `sessionId=${sessionIdShawn}`).send({
-            first_name: 'Matt', last_name: 'Chanway', email: 'notmattchanway@gmail.com', position : 1, certification: 1, start_date :'2023-01-01' 
+            first_name: 'Matt', last_name: 'Chanway', email: 'notmattchanway@gmail.com', position: 1, certification: 1, start_date: '2023-01-01'
         })
+        let mattId = await getEmployeeId('Matt')
 
         let editResp = await request(app).put(`/api/employees/${mattId}`).set("Cookie", `sessionId=${sessionIdShawn}`).send(
-            {first_name: 'Mark', last_name: 'Johnson', email: 'markjohnson@gmail.com', position : 1, certification: 1, start_date :'2023-01-01' }
+            { first_name: 'Mark', last_name: 'Johnson', email: 'markjohnson@gmail.com', position: 1, certification: 1, start_date: '2023-01-01' }
         )
         expect(editResp.body).toEqual(
             {
                 employee_id: mattId,
-            first_name: "Mark",
-            last_name: "Johnson",
-            email: "markjohnson@gmail.com",
-            position: 1,
-            certification: 1,
-            start_date: expect.any(String),
-            jwt_token: null,
-            session_id: null,
-            password_reset_token: null,
-            first_login: true
+                first_name: "Mark",
+                last_name: "Johnson",
+                email: "markjohnson@gmail.com",
+                position: 1,
+                certification: 1,
+                start_date: expect.any(String),
+                jwt_token: null,
+                session_id: null,
+                password_reset_token: null,
+                first_login: true
 
 
             }
@@ -145,6 +144,97 @@ describe("Employees", function(){
 
 
     })
+
+    test("Employee cannot edit", async function () {
+
+        let sessionIdShawn = await authenticateEmployeeAndGetSessionId('Shawn', 'password1');
+        await request(app).post("/api/employees").set("Cookie", `sessionId=${sessionIdShawn}`).send({
+            first_name: 'Matt', last_name: 'Chanway', email: 'notmattchanway@gmail.com', position: 1, certification: 1, start_date: '2023-01-01'
+        })
+        let mattId = await getEmployeeId('Matt')
+        let sessionIdMatt = await authenticateEmployeeAndGetSessionId('Matt', 'Chanway123')
+
+        let editResp = await request(app).put(`/api/employees/${mattId}`).set("Cookie", `sessionId=${sessionIdMatt}`).send(
+            { first_name: 'Mark', last_name: 'Johnson', email: 'markjohnson@gmail.com', position: 1, certification: 1, start_date: '2023-01-01' }
+        )
+        expect(editResp.body).toEqual(
+            {
+                message: "Unauthorized"
+            }
+        )
+    })
+
+    test("Employee can update password, both on first login and afterwards", async function () {
+
+        let sessionIdShawn = await authenticateEmployeeAndGetSessionId('Shawn', 'password1');
+        let create = await request(app).post("/api/employees").set("Cookie", `sessionId=${sessionIdShawn}`).send({
+            first_name: 'Matt', last_name: 'Chanway', email: 'notmattchanway@gmail.com', position: 1, certification: 1, start_date: '2023-01-01'
+        })
+        let mattId = await getEmployeeId('Matt')
+        let sessionIdMatt = await authenticateEmployeeAndGetSessionId('Matt', 'Chanway123')
+
+        let editResp = await request(app).patch(`/api/employees/${mattId}`).set("Cookie", `sessionId=${sessionIdMatt}`).send(
+            { password: 'gonzaga', firstLogin: true }
+        )
+        expect(editResp.body).toEqual(
+            {
+                employee_id: mattId,
+                first_name: "Matt",
+                last_name: "Chanway",
+                email: "notmattchanway@gmail.com",
+                position: 1,
+                certification: 1,
+                start_date: expect.any(String),
+                jwt_token: expect.any(String),
+                session_id: expect.any(String),
+                password_reset_token: null,
+                first_login: false
+            }
+        )
+        let secondEditResp = await request(app).patch(`/api/employees/${mattId}`).set("Cookie", `sessionId=${sessionIdMatt}`).send(
+            { password: 'gonzagaz', firstLogin: false }
+        )
+
+        expect(secondEditResp.body).toEqual(
+            {
+                employee_id: mattId,
+                first_name: "Matt",
+                last_name: "Chanway",
+                email: "notmattchanway@gmail.com",
+                position: 1,
+                certification: 1,
+                start_date: expect.any(String),
+                jwt_token: expect.any(String),
+                session_id: expect.any(String),
+                password_reset_token: null,
+                first_login: false
+            }
+        )
+
+    })
+
+    test("Manager cannot update another employee's password", async function () {
+
+        let sessionIdShawn = await authenticateEmployeeAndGetSessionId('Shawn', 'password1');
+        await request(app).post("/api/employees").set("Cookie", `sessionId=${sessionIdShawn}`).send({
+            first_name: 'Matt', last_name: 'Chanway', email: 'notmattchanway@gmail.com', position: 1, certification: 1, start_date: '2023-01-01'
+        })
+        let mattId = await getEmployeeId('Matt')
+        let editResp = await request(app).patch(`/api/employees/${mattId}`).set("Cookie", `sessionId=${sessionIdShawn}`).send(
+            { password: 'gonzaga', firstLogin: true }
+        )
+        expect(editResp.body).toEqual(
+            {
+                message:"Unauthorized, must be same user"
+            }
+        )
+      
+
+    })
+
+
+
+
 
 
 })

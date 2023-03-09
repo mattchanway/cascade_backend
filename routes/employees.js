@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { authenticateJWT, ensureLoggedIn, ensureCorrectUserOrManager, ensureManager } = require("../middleware/middlewareAuth");
+const { authenticateJWT, ensureLoggedIn, ensureCorrectUserOrManager, ensureManager, ensureCorrectUser } = require("../middleware/middlewareAuth");
 const EmployeeManager = require("../models/EmployeeManager");
 
 
@@ -52,7 +52,7 @@ router.get("/:id", authenticateJWT, ensureLoggedIn, ensureCorrectUserOrManager, 
 router.post("/", authenticateJWT, ensureLoggedIn, ensureManager, async function (req, res, next) {
 
     try {
-        console.log('post /employees', req.body)
+        
         let result = await EmployeeManager.addEmployee(req.body);
         return res.json(result);
     }
@@ -65,6 +65,7 @@ router.post("/", authenticateJWT, ensureLoggedIn, ensureManager, async function 
 router.put("/:id", authenticateJWT, ensureManager, async function (req, res, next) {
 
     try {
+        console.log('route', req.params)
         let id = req.params.id;
         let result = await EmployeeManager.editEmployee(req.body, id);
 
@@ -76,12 +77,12 @@ router.put("/:id", authenticateJWT, ensureManager, async function (req, res, nex
     }
 });
 
-router.patch("/:id", authenticateJWT, ensureLoggedIn, async function (req, res, next) {
+router.patch("/:id", authenticateJWT, ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
 
     try {
 
         let id = req.params.id;
-        console.log(req.body)
+       
         let result = await EmployeeManager.updateInternalPassword(id, req.body.password, req.body.firstLogin);
 
         return res.json(result);
