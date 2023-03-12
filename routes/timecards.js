@@ -24,6 +24,7 @@ router.get("/", authenticateJWT, ensureManager, async function (req, res, next) 
 router.get("/reports/weekly/:id", authenticateJWT, async function (req, res, next) {
 
     try {
+        // ROUTE TO SOURCE DATA FOR 'MY-TIMECARDS' view
 
         let result = await TimecardsManager.getTimecardsIndiv(req.params.id);
         return res.json(result);
@@ -138,7 +139,7 @@ router.get("/jobs-report", async function (req, res, next) {
 router.get("/filter", authenticateJWT, ensureManager, async function (req, res, next) {
 
     try {
-        console.log("initial req.params", req.query)
+       
         let result = await TimecardsManager.filterSearch(req.query);
         return res.json(result);
     }

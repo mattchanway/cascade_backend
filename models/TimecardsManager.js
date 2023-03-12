@@ -182,7 +182,7 @@ class TimecardsManager {
 
         try {
             let { fromDate, toDate, employeeId, jobId, overtime } = data;
-            console.log(data)
+          
             let query = `SELECT timecards.timecard_id, timecards.job_id, timecards.employee_id, timecards.timecard_date, timecards.reg_time,
             timecards.overtime, timecards.expenses, timecards.time_submitted, timecards.location_submitted, timecards.notes, jobs.job_name, 
             employees.first_name, employees.last_name FROM timecards JOIN jobs ON timecards.job_id = jobs.job_id JOIN employees ON timecards.employee_id = employees.employee_id

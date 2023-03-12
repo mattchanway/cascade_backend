@@ -140,11 +140,115 @@ describe("Timecards", function () {
         let shawnSession = await authenticateEmployeeAndGetSessionId('Shawn', 'password1');
         let edit = await request(app).get(`/api/timecards/filter?fromDate=2023-01-01&toDate=2023-04-01`).set("Cookie", `sessionId=${shawnSession}`);
 
-        console.log(edit.body)
+        expect(edit.body).toEqual({
+            table: [
+              {
+                timecard_id: expect.any(Number),
+                job_id: '400-22044',
+                employee_id: expect.any(Number),
+                timecard_date: '2023-03-09T08:00:00.000Z',
+                reg_time: 8,
+                overtime: 0,
+                expenses: 0,
+                time_submitted:expect.any(String),
+                location_submitted: null,
+                notes: null,
+                job_name: 'Dr. Oonchi',
+                first_name: 'Shawn',
+                last_name: 'Rostas'
+              },
+              {
+                timecard_id: expect.any(Number),
+                job_id: '400-22045',
+                employee_id: expect.any(Number),
+                timecard_date: '2023-03-10T08:00:00.000Z',
+                reg_time: 8,
+                overtime: 0,
+                expenses: 0,
+                time_submitted: expect.any(String),
+                location_submitted: null,
+                notes: null,
+                job_name: 'IQ Dental',
+                first_name: 'Shawn',
+                last_name: 'Rostas'
+              },
+              {
+                timecard_id: expect.any(Number),
+                job_id: '400-22045',
+                employee_id: expect.any(Number),
+                timecard_date: '2023-03-09T08:00:00.000Z',
+                reg_time: 8,
+                overtime: 0,
+                expenses: 0,
+                time_submitted: expect.any(String),
+                location_submitted: null,
+                notes: null,
+                job_name: 'IQ Dental',
+                first_name: 'Joe',
+                last_name: 'Test'
+              },
+              {
+                timecard_id: expect.any(Number),
+                job_id: '400-22044',
+                employee_id: expect.any(Number),
+                timecard_date: '2023-03-10T08:00:00.000Z',
+                reg_time: 8,
+                overtime: 0,
+                expenses: 0,
+                time_submitted: expect.any(String),
+                location_submitted: null,
+                notes: null,
+                job_name: 'Dr. Oonchi',
+                first_name: 'Joe',
+                last_name: 'Test'
+              }
+            ],
+            summary: { totalOT: 0, totalReg: 32, totalExp: 0 }
+          })
 
     })
 
     test("Filter report, all jobs, one employee", async function(){
+        let joeId = await getEmployeeId('Joe')
+        let shawnSession = await authenticateEmployeeAndGetSessionId('Shawn', 'password1');
+        let edit = await request(app).get(`/api/timecards/filter?fromDate=2023-01-01&toDate=2023-04-01&employeeId=${joeId}`).set("Cookie", `sessionId=${shawnSession}`);
+ 
+
+        expect(edit.body).toEqual({
+            table: [
+              {
+                timecard_id: expect.any(Number),
+                job_id: '400-22045',
+                employee_id: expect.any(Number),
+                timecard_date: '2023-03-09T08:00:00.000Z',
+                reg_time: 8,
+                overtime: 0,
+                expenses: 0,
+                time_submitted: expect.any(String),
+                location_submitted: null,
+                notes: null,
+                job_name: 'IQ Dental',
+                first_name: 'Joe',
+                last_name: 'Test'
+              },
+              {
+                timecard_id: expect.any(Number),
+                job_id: '400-22044',
+                employee_id: expect.any(Number),
+                timecard_date: '2023-03-10T08:00:00.000Z',
+                reg_time: 8,
+                overtime: 0,
+                expenses: 0,
+                time_submitted: expect.any(String),
+                location_submitted: null,
+                notes: null,
+                job_name: 'Dr. Oonchi',
+                first_name: 'Joe',
+                last_name: 'Test'
+              }
+            ],
+            summary: { totalOT: 0, totalReg: 16, totalExp: 0 }
+          })
 
 
         
@@ -152,15 +256,61 @@ describe("Timecards", function () {
 
     test("Filter report, one job, all employees", async function(){
 
+        let shawnSession = await authenticateEmployeeAndGetSessionId('Shawn', 'password1');
+        let edit = await request(app).get(`/api/timecards/filter?fromDate=2023-01-01&toDate=2023-04-01&jobId=400-22044`).set("Cookie", `sessionId=${shawnSession}`);
+
+        expect(edit.body).toEqual({
+            table: [
+              {
+                timecard_id: expect.any(Number),
+                job_id: '400-22044',
+                employee_id: expect.any(Number),
+                timecard_date: '2023-03-09T08:00:00.000Z',
+                reg_time: 8,
+                overtime: 0,
+                expenses: 0,
+                time_submitted:expect.any(String),
+                location_submitted: null,
+                notes: null,
+                job_name: 'Dr. Oonchi',
+                first_name: 'Shawn',
+                last_name: 'Rostas'
+              },
+              {
+                timecard_id: expect.any(Number),
+                job_id: '400-22044',
+                employee_id: expect.any(Number),
+                timecard_date: '2023-03-10T08:00:00.000Z',
+                reg_time: 8,
+                overtime: 0,
+                expenses: 0,
+                time_submitted: expect.any(String),
+                location_submitted: null,
+                notes: null,
+                job_name: 'Dr. Oonchi',
+                first_name: 'Joe',
+                last_name: 'Test'
+              }
+            ],
+            summary: { totalOT: 0, totalReg: 16, totalExp: 0 }
+          })
+
 
         
     })
 
     test("Filter report, does not work for non-manager", async function(){
 
+        let joeSession = await authenticateEmployeeAndGetSessionId('Joe', 'password1');
+        let edit = await request(app).get(`/api/timecards/filter?fromDate=2023-01-01&toDate=2023-04-01`).set("Cookie", `sessionId=${joeSession}`);
 
+        expect(edit.body).toEqual({
+            message: "Unauthorized"
+        })
         
     })
+
+    
 
 
 
