@@ -82,13 +82,9 @@ class TimecardsManager {
     static async addTimecard(data) {
 
         try {
-            console.log('query data', data)
+            
             const { job_id, employee_id, timecard_date, reg_time, overtime, expenses, time_submitted, location_submitted, notes } = data;
 
-            const duplicateTimecardCheck = await db.query(`SELECT timecard_id, timecard_date from timecards
-            WHERE employee_id = $1 AND timecard_date = $2`,[employee_id, timecard_date]);
-            console.log(duplicateTimecardCheck.rows)
-            if(duplicateTimecardCheck.rows.length) return ({duplicateTimecard: 'Timecard exists for that user for that date'})
 
             const result = await db.query(`INSERT INTO timecards (job_id, employee_id, timecard_date, 
                 reg_time, overtime, expenses,location_submitted, notes) 
