@@ -94,7 +94,41 @@ class TimecardsManager {
             return result.rows;
         }
         catch (e) {
+            console.log(e)
+            return e;
+        }
+    }
 
+    static async addMultiTimecard(data) {
+
+        try {
+            
+            let {rows} = data;
+            console.log(rows)
+            let args = [];
+            let query = `INSERT INTO timecards (job_id, employee_id, timecard_date, 
+                reg_time, overtime, expenses,location_submitted, notes) VALUES `
+            let valStr = ''
+
+            for(let i = 0 ; i < rows.length ; i++){
+                let currData = rows[i];
+                let startDollar = (i*8)+1
+                const { job_id, employee_id, timecard_date, reg_time, overtime, expenses, location_submitted, notes } = currData;
+                let currStr = i < rows.length -1 ? `($${startDollar}, $${startDollar+1}, $${startDollar+2}, $${startDollar+3} ,$${startDollar+4}, $${startDollar+5},
+                    $${startDollar+6}, $${startDollar+7}),` : `($${startDollar}, $${startDollar+1}, $${startDollar+2}, $${startDollar+3} ,$${startDollar+4}, $${startDollar+5},
+                        $${startDollar+6}, $${startDollar+7}) returning *`;
+                valStr = valStr + currStr
+                args = [...args, job_id, employee_id, timecard_date, reg_time, overtime, expenses, location_submitted, notes];
+                
+            }
+            console.log(query+valStr, args)
+            const result = await db.query(query+valStr, args);
+            console.log(result)
+
+            return result.rows;
+        }
+        catch (e) {
+            
             return e;
         }
     }

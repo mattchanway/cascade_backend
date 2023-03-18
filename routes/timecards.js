@@ -63,6 +63,19 @@ router.post("/", authenticateJWT, ensureLoggedIn, async function (req, res, next
     }
 });
 
+router.post("/multi", authenticateJWT, ensureLoggedIn, async function (req, res, next) {
+
+    try {
+
+        let result = await TimecardsManager.addMultiTimecard(req.body);
+        return res.json(result);
+    }
+    catch (err) {
+
+        return next(err);
+    }
+});
+
 router.put("/:id", authenticateJWT, ensureManager, async function (req, res, next) {
 
     try {
