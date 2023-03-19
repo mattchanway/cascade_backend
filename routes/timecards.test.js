@@ -63,6 +63,99 @@ describe("Timecards", function () {
 
     })
 
+    test("Employee can create a multi-timecard", async function(){
+      let joeSession = await authenticateEmployeeAndGetSessionId('Joe', 'password1');
+      let job_id1 = '400-22044';
+      let job_id2 = '400-22045';
+      let employee_id = await getEmployeeId('Joe');
+      let timecard_date = '1996-03-11';
+      let reg_time1 = 4;
+      let overtime1 = 0;
+      let expenses1 = 0;
+      let notes1 = null
+      let reg_time2 = 4;
+      let overtime2 = 1;
+      let notes2 = "Overtime, dang it"
+      let expenses2 = 5.55;
+
+      let resp = await request(app).post(`/api/timecards/multi`).set("Cookie", `sessionId=${joeSession}`).send({
+        rows: [{job_id: job_id1, employee_id: employee_id, timecard_date: timecard_date, 
+          reg_time: reg_time1, overtime: overtime1, expenses: expenses1, notes: notes1},
+          {job_id: job_id2, employee_id: employee_id, timecard_date: timecard_date, 
+            reg_time: reg_time2, overtime: overtime2, expenses: expenses2, notes: notes2}]
+      });
+
+      let shawnSession = await authenticateEmployeeAndGetSessionId('Shawn', 'password1');
+
+      let edit = await request(app).get(`/api/timecards/filter?fromDate=1996-01-01&toDate=1997-04-01`).set("Cookie", `sessionId=${shawnSession}`);
+
+      expect(edit.body).toEqual({
+        table: [
+          {
+            timecard_id: expect.any(Number),
+            job_id: '400-22044',
+            employee_id: expect.any(Number),
+            timecard_date: '1996-03-11T08:00:00.000Z',
+            reg_time: 4,
+            overtime: 0,
+            expenses: 0,
+            time_submitted:expect.any(String),
+            location_submitted: null,
+            notes: null,
+            job_name: 'Dr. Oonchi',
+            first_name: 'Joe',
+            last_name: 'Test'
+          },
+          {
+            timecard_id: expect.any(Number),
+            job_id: '400-22045',
+            employee_id: expect.any(Number),
+            timecard_date: '1996-03-11T08:00:00.000Z',
+            reg_time: 4,
+            overtime: 1,
+            expenses: 5.55,
+            time_submitted: expect.any(String),
+            location_submitted: null,
+            notes: "Overtime, dang it",
+            job_name: 'IQ Dental',
+            first_name: 'Joe',
+            last_name: 'Test'
+          }
+        ],
+        summary: { totalOT: 1, totalReg: 8, totalExp: 5.55 }
+      })
+
+  })
+
+  test("Invalid session cannot create a multi-timecard", async function(){
+    // let joeSession = await authenticateEmployeeAndGetSessionId('Joe', 'password1');
+    let job_id1 = '400-22044';
+    let job_id2 = '400-22045';
+    let employee_id = await getEmployeeId('Joe');
+    let timecard_date = '1996-03-11';
+    let reg_time1 = 4;
+    let overtime1 = 0;
+    let expenses1 = 0;
+    let notes1 = null
+    let reg_time2 = 4;
+    let overtime2 = 1;
+    let notes2 = "Overtime, dang it"
+    let expenses2 = 5.55;
+
+    let resp = await request(app).post(`/api/timecards/multi`).set("Cookie", `sessionId=123abc`).send({
+      rows: [{job_id: job_id1, employee_id: employee_id, timecard_date: timecard_date, 
+        reg_time: reg_time1, overtime: overtime1, expenses: expenses1, notes: notes1},
+        {job_id: job_id2, employee_id: employee_id, timecard_date: timecard_date, 
+          reg_time: reg_time2, overtime: overtime2, expenses: expenses2, notes: notes2}]
+    });
+
+
+    expect(resp.body).toEqual({
+     message: "Unauthorized"
+
+})
+  })
+
     test("Invalid session cannot create a timecard", async function(){
        
         let job_id = '400-22044';
