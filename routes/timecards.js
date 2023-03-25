@@ -152,7 +152,7 @@ router.get("/jobs-report", async function (req, res, next) {
 router.get("/filter", authenticateJWT, ensureManager, async function (req, res, next) {
 
     try {
-       
+
         let result = await TimecardsManager.filterSearch(req.query);
         return res.json(result);
     }

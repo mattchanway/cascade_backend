@@ -221,19 +221,19 @@ class TimecardsManager {
             let whereExpressions = [];
             let queryValues = [];
 
-            if (fromDate !== undefined && toDate !== undefined) {
+            if (fromDate && toDate) {
                 queryValues.push(fromDate, toDate);
                 whereExpressions.push(`timecard_date >= $1 AND timecard_date <= $2`);
             }
-            if (employeeId !== undefined) {
+            if (employeeId) {
                 queryValues.push(employeeId);
                 whereExpressions.push(`timecards.employee_id = $${queryValues.length}`);
             }
-            if (jobId !== undefined) {
+            if (jobId) {
                 queryValues.push(jobId);
                 whereExpressions.push(`timecards.job_id = $${queryValues.length}`);
             }
-            if (overtime === true) {
+            if (overtime) {
 
                 whereExpressions.push(`overtime > 0`)
             }
