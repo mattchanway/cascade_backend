@@ -27,7 +27,7 @@ class EmployeeManager {
 
             const result = await db.query(`
         SELECT t.job_id, t.reg_time, t.overtime, t.expenses, t.notes, t.location_submitted, t.timecard_date,
-        t.time_submitted, t.timecard_id, e.employee_id, e.first_name, e.last_name, e.start_date,
+        t.time_submitted, t.timecard_id, e.employee_id, e.email, e.first_name, e.last_name, e.start_date, e.position, e.certification,
         j.job_name, p.position_name, c.certification_name from timecards t 
         join employees e on t.employee_id = e.employee_id
         join jobs j on t.job_id = j.job_id
@@ -39,8 +39,8 @@ class EmployeeManager {
 
             if (!result.rows.length) {
 
-                let newResult = await db.query(`SELECT e.employee_id, e.first_name, e.last_name, e.start_date,
-                 p.position_name, c.certification_name from employees e 
+                let newResult = await db.query(`SELECT e.employee_id, e.email, e.first_name, e.last_name, e.start_date, e.position,
+                e.certification, p.position_name, c.certification_name from employees e 
                  join  positions p on p.position_id = e.position
                  join certifications c on c.certification_id = e.certification
                 WHERE e.employee_id = $1`, [id]);

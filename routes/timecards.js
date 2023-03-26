@@ -154,6 +154,7 @@ router.get("/filter", authenticateJWT, ensureManager, async function (req, res, 
     try {
 
         let result = await TimecardsManager.filterSearch(req.query);
+        console.log(req.query)
         return res.json(result);
     }
     catch (err) {
