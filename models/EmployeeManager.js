@@ -51,6 +51,7 @@ class EmployeeManager {
             let row1 = result.rows[0]
             let userData = {
                 first_name: row1.first_name, last_name: row1.last_name, address: row1.address, certification_name: row1.certification_name,
+                position: row1.position, certification: row1.certification,
                 position_name: row1.position_name, start_date: row1.start_date, employee_id: row1.employee_id
             }
             let timecardsData = result.rows.map(r => ({
