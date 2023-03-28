@@ -79,6 +79,8 @@ router.patch("/:id", authenticateJWT, ensureManager, async function (req, res, n
 
 router.delete("/:id", authenticateJWT, ensureManager, async function (req, res, next) {
 
+    // should only be used if a job was created by mistake
+
     try {
         let id = req.params.id;
         await JobsManager.deleteEmployee(id);

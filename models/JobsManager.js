@@ -21,6 +21,8 @@ class JobsManager {
             const result = await db.query(`
         SELECT * from jobs WHERE job_id = $1`, [id]);
 
+            if(!result.rows.length) return false
+
             return result.rows[0];
         }
         catch (e) {
@@ -33,6 +35,8 @@ class JobsManager {
         try {
 
             const { job_id, job_name, job_address_street_line1, job_address_street_unit, job_address_street_city, job_description, shop_docs_link } = data;
+            if(!job_id || !job_name || !job_address_street_line1 || !job_address_street_city) throw new Error('Key details are missing.')
+
             const result = await db.query(`INSERT INTO jobs (job_id , job_name, job_address_street_line1, job_address_street_unit, job_address_street_city, job_description, shop_docs_link) 
             VALUES($1, $2, $3, $4, $5,$6,$7 ) returning *`, [job_id, job_name, job_address_street_line1, job_address_street_unit, job_address_street_city, job_description, shop_docs_link]);
 
@@ -52,7 +56,10 @@ class JobsManager {
             const result = await db.query(`
         UPDATE jobs SET job_name = $1, job_address_street_line1 = $2, job_address_street_unit = $3, job_address_street_city = $4,
         job_description = $5, shop_docs_link = $7 WHERE job_id = $6 RETURNING *`, [job_name, job_address_street_line1, job_address_street_unit, job_address_street_city, job_description, jobId, shop_docs_link]);
+        if(!result.rows.length) throw new Error('Job not found');
             return result.rows[0];
+
+
         }
         catch (e) {
 
@@ -81,7 +88,7 @@ class JobsManager {
         try {
 
             const result = await db.query(`
-        DELETE from job WHERE job_id = $1`, [jobId]);
+        DELETE from jobs WHERE job_id = $1`, [jobId]);
             return result.rows;
         }
         catch (e) {

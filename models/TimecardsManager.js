@@ -29,55 +29,55 @@ class TimecardsManager {
         }
     }
 
-    static async getTimecardsIndiv(employeeId){
+    // static async getTimecardsIndiv(employeeId){
 
-        try{
-            let dates = []
-            let table = [null,null,null,null,null,null,null,null, null, null, 
-                null, null,null,null]
+    //     try{
+    //         let dates = []
+    //         let table = [null,null,null,null,null,null,null,null, null, null, 
+    //             null, null,null,null]
                     
-            for(let i = 13 ; i >= 0; i-- ){
-                let today = new Date();
-                today.setDate(today.getDate()-i);
+    //         for(let i = 13 ; i >= 0; i-- ){
+    //             let today = new Date();
+    //             today.setDate(today.getDate()-i);
         
-                dates.push(toISOLocal(today))
-            }
-            console.log('dates',dates)
+    //             dates.push(toISOLocal(today))
+    //         }
+    //         console.log('dates',dates)
 
-            let query = db.query(`SELECT * FROM timecards 
-                JOIN jobs ON timecards.job_id = jobs.job_id
-                WHERE employee_id = $11 AND
-                (timecard_date = $1 OR timecard_date = $2 OR
-                timecard_date = $3 OR timecard_date = $4 OR
-                timecard_date = $5 OR timecard_date = $6 OR
-                timecard_date = $7 OR timecard_date = $8 OR
-                timecard_date = $9 OR timecard_date = $10 OR
-                timecard_date = $11 OR timecard_date = $12 OR
-                timecard_date = $13 OR timecard_date = $14 ) ORDER BY timecard_date ASC`, [...dates, employeeId])
+    //         let query = db.query(`SELECT * FROM timecards 
+    //             JOIN jobs ON timecards.job_id = jobs.job_id
+    //             WHERE employee_id = $11 AND
+    //             (timecard_date = $1 OR timecard_date = $2 OR
+    //             timecard_date = $3 OR timecard_date = $4 OR
+    //             timecard_date = $5 OR timecard_date = $6 OR
+    //             timecard_date = $7 OR timecard_date = $8 OR
+    //             timecard_date = $9 OR timecard_date = $10 OR
+    //             timecard_date = $11 OR timecard_date = $12 OR
+    //             timecard_date = $13 OR timecard_date = $14 ) ORDER BY timecard_date ASC`, [...dates, employeeId])
             
-                function datediff(first, second) {        
-                    return Math.floor((second - first) / (1000 * 60 * 60 * 24));
-                }
+    //             function datediff(first, second) {        
+    //                 return Math.floor((second - first) / (1000 * 60 * 60 * 24));
+    //             }
 
-            let result = await query;
-            let today = new Date();
-            let todayInd = today.getDay()+7
-            while(result.rows.length){
-                let curr = result.rows.pop();
-                let currDate = curr.timecard_date;
-                let diff = datediff(currDate, today)
-                table[todayInd-diff] = curr
-            }
-            console.log('heyyy',table)
+    //         let result = await query;
+    //         let today = new Date();
+    //         let todayInd = today.getDay()+7
+    //         while(result.rows.length){
+    //             let curr = result.rows.pop();
+    //             let currDate = curr.timecard_date;
+    //             let diff = datediff(currDate, today)
+    //             table[todayInd-diff] = curr
+    //         }
+    //         console.log('heyyy',table)
        
-            return table
-        }
-        catch(e){
+    //         return table
+    //     }
+    //     catch(e){
 
-            return e;
-        }
+    //         return e;
+    //     }
 
-    }
+    // }
 
     static async addTimecard(data) {
 
@@ -91,10 +91,12 @@ class TimecardsManager {
             VALUES($1, $2, $3, $4, $5, $6,$7,$8) returning *`, [job_id, employee_id, timecard_date, reg_time,
                 overtime, expenses, location_submitted, notes]);
 
+            if(!result.rows.length) return false
+
             return result.rows;
         }
         catch (e) {
-            console.log(e)
+            
             return e;
         }
     }
@@ -104,7 +106,7 @@ class TimecardsManager {
         try {
             
             let {rows} = data;
-            console.log(rows)
+            console.log(data, rows)
             let args = [];
             let query = `INSERT INTO timecards (job_id, employee_id, timecard_date, 
                 reg_time, overtime, expenses,location_submitted, notes) VALUES `
@@ -123,7 +125,7 @@ class TimecardsManager {
             }
             console.log(query+valStr, args)
             const result = await db.query(query+valStr, args);
-            console.log(result)
+           
 
             return result.rows;
         }
