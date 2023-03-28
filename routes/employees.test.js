@@ -87,6 +87,9 @@ describe("Employees", function () {
             timecardsData: expect.any(Array),
             userData: {
                 certification_name: "None",
+                certification: 1,
+                email: "notmattchanway@gmail.com",
+                position: 1,
                 employee_id: mattId,
                 first_name: "Matt",
                 last_name: "Chanway",
@@ -101,6 +104,9 @@ describe("Employees", function () {
             timecardsData: expect.any(Array),
             userData: {
                 certification_name: "None",
+                certification: 1,
+                email: "notmattchanway@gmail.com",
+                position:1,
                 employee_id: mattId,
                 first_name: "Matt",
                 last_name: "Chanway",

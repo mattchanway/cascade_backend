@@ -80,7 +80,7 @@ router.post("/password-forgotten-update/:token", async function (req, res, next)
         let { password } = req.body;
 
         let result = await EmployeeManager.updateForgottenPassword(token, password);
-        console.log(result)
+       
         if(result === false) return res.json({invalidToken: "Invalid token."})
         
         let encrypted = encrypt(result.session);

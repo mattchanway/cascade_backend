@@ -69,6 +69,17 @@ describe("POST /auth", function () {
         expect(resp.body).toEqual(false)
     })
 
+    test("authentication denies access with non-existent user", async function () {
+
+        const resp = await request(app).post("/api/auth").send({
+            id: 0,
+            password: "password47"
+        })
+        expect(resp.body).toEqual(false)
+    })
+
+
+
     test("whoamI does not work with a bad sessionId", async function () {
 
         const resp = await request(app).get("/api/auth/whoami").set("Cookie", "sessionId=abc");
