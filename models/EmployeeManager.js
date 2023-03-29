@@ -9,7 +9,8 @@ class EmployeeManager {
     static async getAllEmployees() {
         try {
             const result = await db.query(`
-        SELECT * from employees ORDER BY last_name asc`);
+        SELECT certification, email, employee_id, first_login,
+        first_name, last_name, position, start_date from employees ORDER BY last_name asc`);
 
             return result.rows;
         }
@@ -39,24 +40,26 @@ class EmployeeManager {
 
             if (!result.rows.length) {
 
-                let newResult = await db.query(`SELECT e.employee_id, e.email, e.first_name, e.last_name, e.start_date, e.position,
+                let newResult = await db.query(`SELECT e.employee_id, e.email, e.first_name, e.last_name, e.start_date, e.position, e.email,
                 e.certification, p.position_name, c.certification_name from employees e 
                  join  positions p on p.position_id = e.position
                  join certifications c on c.certification_id = e.certification
                 WHERE e.employee_id = $1`, [id]);
+                if(!newResult.rows.length) return false;
                 let userData = newResult.rows[0];
                 return { userData: userData, timecardsData: [] };
             }
 
             let row1 = result.rows[0]
             let userData = {
-                first_name: row1.first_name, last_name: row1.last_name, address: row1.address, certification_name: row1.certification_name,
-                position: row1.position, certification: row1.certification,
+                first_name: row1.first_name, last_name: row1.last_name, certification_name: row1.certification_name,
+                email: row1.email, position: row1.position, certification: row1.certification,
                 position_name: row1.position_name, start_date: row1.start_date, employee_id: row1.employee_id
             }
             let timecardsData = result.rows.map(r => ({
                 job_id: r.job_id, reg_time: r.reg_time, overtime: r.overtime, notes: r.notes,
                 location_submitted: r.location_submitted, timecard_date: r.timecard_date,
+                expenses: r.expenses,
                 time_submitted: r.time_submitted, timecard_id: r.timecard_id, job_name: r.job_name
             }))
 
@@ -75,7 +78,7 @@ class EmployeeManager {
             const INIT_PASSWORD = await bcrypt.hash(`${last_name}123`, 10);
             const result = await db.query(`INSERT INTO employees (password,first_name, last_name, 
                 email, position, certification, start_date) 
-            VALUES($1, $2, $3, $4, $5, $6,$7) returning *`, [INIT_PASSWORD, first_name,
+            VALUES($1, $2, $3, $4, $5, $6,$7) returning employee_id, first_name, last_name`, [INIT_PASSWORD, first_name,
                 last_name, email, position, certification, start_date]);
 
             let newUser = result.rows[0];
@@ -140,6 +143,7 @@ class EmployeeManager {
             };
             let jwtToken = jwt.sign(jwtPayload, SECRET_KEY);
             const res2 = await db.query(`UPDATE employees SET jwt_token =$1  WHERE employee_id =$2 returning jwt_token`, [jwtToken, employee_id]);
+            if(!res2.rows.length) throw new Error('No user found to for JWT rotation.')
             return res2.rows[0].jwt_token
 
         }
@@ -345,6 +349,20 @@ class EmployeeManager {
 
             const result = await db.query(`
         DELETE from employees WHERE employee_id = $1`, [employeeId]);
+            return result.rows;
+        }
+        catch (e) {
+
+            return e;
+        }
+    }
+
+    static async updateEmployeeStatus(employeeId, status) {
+
+        try {
+
+            const result = await db.query(`
+        UPDATE employees set active = $1 WHERE employee_id = $2`, [status, employeeId]);
             return result.rows;
         }
         catch (e) {

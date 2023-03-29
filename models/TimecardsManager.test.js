@@ -78,35 +78,74 @@ describe("Job Manager", function () {
 
     })
 
-    // test("Filter search - dates and job only", async function () {
+    test("Filter search - dates and job only", async function () {
 
-    //     let joeId = await getEmployeeId('Joe');
-    //     let allTimecards = await TimecardsManager.getAllTimecards();
-    //     let sample = allTimecards[0]
-    //     let id = sample.timecard_id
 
-    //     await TimecardsManager.deleteTimecard(id);
-    //     let test = await TimecardsManager.getTimecard(id)
+        
+        let data = { fromDate: '2023-03-08', toDate: '2023-03-12', jobId: '400-22044' }
+        let allTimecards = await TimecardsManager.filterSearch(data);
+        
+        
 
-    //     expect(test).toEqual(undefined
-    // )
 
-    // })
+        expect(allTimecards).toEqual({
+            table: [
+                {
+                    first_name:'Shawn', last_name: 'Rostas', job_name: 'Dr. Oonchi',
+                    timecard_id: expect.any(Number), job_id: '400-22044', location_submitted: null,
+                    time_submitted: expect.any(Date),
+                    employee_id: expect.any(Number), timecard_date: expect.any(Date), reg_time: 8, overtime: 0, expenses: 0, notes: null
+                },
+              
+                {
+                    first_name:'Joe', last_name: 'Test', job_name: 'Dr. Oonchi',
+                    timecard_id: expect.any(Number), job_id: '400-22044', location_submitted: null,
+                    time_submitted: expect.any(Date),
+                    employee_id: expect.any(Number), timecard_date: expect.any(Date), reg_time: 8, overtime: 0, expenses: 0, notes: null
+                }
 
-    // test("Filter search - dates, employee and job", async function () {
+            ],
+            summary: {
+                totalOT: 0,
+                totalReg: 16,
+                totalExp: 0
+            }
+        }
+        )
 
-    //     let joeId = await getEmployeeId('Joe');
-    //     let allTimecards = await TimecardsManager.getAllTimecards();
-    //     let sample = allTimecards[0]
-    //     let id = sample.timecard_id
 
-    //     await TimecardsManager.deleteTimecard(id);
-    //     let test = await TimecardsManager.getTimecard(id)
 
-    //     expect(test).toEqual(undefined
-    // )
 
-    // })
+    })
+
+    test("Filter search - dates, employee and job", async function () {
+
+        let shawnId = await getEmployeeId('Shawn');
+        let data = { fromDate: '2023-03-08', toDate: '2023-03-12', jobId: '400-22044', employeeId: +shawnId }
+        let allTimecards = await TimecardsManager.filterSearch(data);
+        
+
+
+        expect(allTimecards).toEqual({
+            table: [
+                {
+                    first_name:'Shawn', last_name: 'Rostas', job_name: 'Dr. Oonchi',
+                    timecard_id: expect.any(Number), job_id: '400-22044', location_submitted: null,
+                    time_submitted: expect.any(Date),
+                    employee_id: expect.any(Number), timecard_date: expect.any(Date), reg_time: 8, overtime: 0, expenses: 0, notes: null
+                }
+
+            ],
+            summary: {
+                totalOT: 0,
+                totalReg: 8,
+                totalExp: 0
+            }
+        }
+        )
+    
+
+    })
 
     test("Add timecard", async function () {
 
