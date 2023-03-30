@@ -1,7 +1,7 @@
 "use strict"
 
 const request = require("supertest");
-
+const bcrypt = require("bcrypt");
 const app = require("../app");
 const db = require("../db");
 
@@ -57,7 +57,11 @@ describe("POST /auth", function () {
             position: expect.any(Number),
             certification: expect.any(Number),
             start_date: expect.any(String),
-            first_login: true
+            first_login: true,
+            active: true,
+            jwt_token: expect.any(String),
+            password_reset_token: null,
+            session_id: expect.any(String)
         })
         expect(resp.header['set-cookie'][0].slice(0, 9)).toEqual('sessionId')
 
@@ -99,16 +103,12 @@ describe("POST /auth", function () {
 
         let shawnIdStr = await getEmployeeId('Shawn');
         let shawnId = shawnIdStr
-        // let test = await db.query(`select * from employees where employee_id = $1`,[+shawnId])
-        // let testpassword = test.rows[0].password;
-        // let oo = authenticateEmployeeAndGetSessionId('Shawn', 'password1')
-        // expect(oo).toEqual('hello')
 
         const loginResp = await request(app).post("/api/auth").send({
             id: shawnId,
             password: "password1"
         })
-        // expect(loginResp).toEqual('hello')
+      
 
         let encryptedCookie = (loginResp.header['set-cookie'][0].split(';')[0].slice(10))
 
@@ -163,6 +163,7 @@ describe("POST /auth", function () {
             certification: expect.any(Number),
             start_date: expect.any(String),
             first_login: true
+            
         })
         expect(updatePasswordResp.header['set-cookie'][0].slice(0, 9)).toEqual('sessionId')
         let sessionId = updatePasswordResp.header['set-cookie'][0].slice(10)
@@ -184,8 +185,18 @@ describe("POST /auth", function () {
             certification: expect.any(Number),
             start_date: expect.any(String),
         
-            first_login: true
+            first_login: true,
+            active: true,
+            jwt_token: expect.any(String),
+            password_reset_token: null,
+            session_id: expect.any(String)
         })
+
+        // BELOW = EXPERIMENTING WITH SWITCHING PASSWORD BACK
+
+        let tokenRespTwo = await request(app).post(`/api/auth/password-token/${shawnIdStr}`);
+
+        await request(app).post(`/api/auth/password-forgotten-update/${tokenRespTwo.body.passwordToken}`).send({ password: "password1" });
 
 
 

@@ -260,9 +260,10 @@ describe("Job Manager", function () {
 
         let authTest = await EmployeeManager.authenticate(shawnId, 'newpassword22')
         expect(authTest).toEqual({"certification": 1, "email": "matthewchanway@gmail.com", "employee_id": expect.any(Number), "first_login": false, 
-        "first_name": "Shawn", "last_name": "Rostas", "position": 3, "start_date": expect.any(Date)})
+        "first_name": "Shawn", "last_name": "Rostas", "position": 3, "start_date": expect.any(Date),
+        active: true, jwt_token: expect.any(String), password_reset_token: null, session_id: expect.any(String)})
 
-        await EmployeeManager.updateInternalPassword(+shawnId, 'password1', true);
+        // await EmployeeManager.updateInternalPassword(+shawnId, 'password1', true);
 
     })
 

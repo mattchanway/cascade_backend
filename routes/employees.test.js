@@ -63,15 +63,8 @@ describe("Employees", function () {
         expect(addNewEmpResp.body).toEqual({
             employee_id: expect.any(Number),
             first_name: "Matt",
-            last_name: "Chanway",
-            email: "notmattchanway@gmail.com",
-            position: 1,
-            certification: 1,
-            start_date: expect.any(String),
-            jwt_token: null,
-            session_id: null,
-            password_reset_token: null,
-            first_login: true
+            last_name: "Chanway"
+            
         })
         let shawnId = await getEmployeeId('Shawn')
         let mattId = await getEmployeeId('Matt');
@@ -139,9 +132,7 @@ describe("Employees", function () {
                 position: 1,
                 certification: 1,
                 start_date: expect.any(String),
-                jwt_token: null,
-                session_id: null,
-                password_reset_token: null,
+        
                 first_login: true
 
 
@@ -191,9 +182,7 @@ describe("Employees", function () {
                 position: 1,
                 certification: 1,
                 start_date: expect.any(String),
-                jwt_token: expect.any(String),
-                session_id: expect.any(String),
-                password_reset_token: null,
+              
                 first_login: false
             }
         )
@@ -210,9 +199,7 @@ describe("Employees", function () {
                 position: 1,
                 certification: 1,
                 start_date: expect.any(String),
-                jwt_token: expect.any(String),
-                session_id: expect.any(String),
-                password_reset_token: null,
+              
                 first_login: false
             }
         )

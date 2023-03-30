@@ -119,8 +119,8 @@ class EmployeeManager {
     static async updateDatabaseTokens(id, jwt, session) {
 
         try {
-            const res2 = await db.query(`UPDATE employees SET jwt_token =$1, session_id = $2 WHERE employee_id =$3 returning
-            certification,email,employee_id,first_login, first_name, last_name, position, start_date`, [jwt, session, id]);
+            const res2 = await db.query(`UPDATE employees SET jwt_token =$1, session_id = $2 WHERE employee_id =$3 returning *`,
+             [jwt, session, id]);
             const loggedInUser = res2.rows[0]
            
             delete loggedInUser.password;

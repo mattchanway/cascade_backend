@@ -18,10 +18,12 @@ router.post("/", async function (req, res, next) {
         // the whoAmI API route can check the session, if it's not expired, say 1 hour, browsing can continue
         
         const { id, password } = req.body;
+      
         let result = await EmployeeManager.authenticate(id, password);
 
         if (result !== false) {
             let encrypted = encrypt(result.session_id);
+            
             res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain:DOMAIN_URL, secure: true, httpOnly: true });
 
         }
