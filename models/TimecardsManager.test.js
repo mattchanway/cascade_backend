@@ -38,7 +38,7 @@ describe("Job Manager", function () {
         let data = { fromDate: '2023-03-08', toDate: '2023-03-12' }
         let allTimecards = await TimecardsManager.filterSearch(data);
         
-
+       
 
         expect(allTimecards).toEqual({
             table: [

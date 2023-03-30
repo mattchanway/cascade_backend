@@ -3,6 +3,7 @@
 const request = require("supertest");
 
 const app = require("../app");
+const db = require("../db");
 
 const {
     commonBeforeAll,
@@ -12,6 +13,16 @@ const {
     getEmployeeId
 } = require("./_testCommon");
 
+async function authenticateEmployeeAndGetSessionId(name, userPassword) {
+    let idStr = await getEmployeeId(name);
+
+    let authResp = await request(app).post("/api/auth").send({
+        id: idStr,
+        password: userPassword
+    })
+    let sessionId = authResp.header['set-cookie'][0].slice(10)
+    return sessionId;
+}
 
 
 beforeAll(commonBeforeAll)
@@ -46,9 +57,6 @@ describe("POST /auth", function () {
             position: expect.any(Number),
             certification: expect.any(Number),
             start_date: expect.any(String),
-            jwt_token: expect.any(String),
-            session_id: expect.any(String),
-            password_reset_token: null,
             first_login: true
         })
         expect(resp.header['set-cookie'][0].slice(0, 9)).toEqual('sessionId')
@@ -91,11 +99,16 @@ describe("POST /auth", function () {
 
         let shawnIdStr = await getEmployeeId('Shawn');
         let shawnId = shawnIdStr
+        // let test = await db.query(`select * from employees where employee_id = $1`,[+shawnId])
+        // let testpassword = test.rows[0].password;
+        // let oo = authenticateEmployeeAndGetSessionId('Shawn', 'password1')
+        // expect(oo).toEqual('hello')
 
         const loginResp = await request(app).post("/api/auth").send({
             id: shawnId,
             password: "password1"
         })
+        // expect(loginResp).toEqual('hello')
 
         let encryptedCookie = (loginResp.header['set-cookie'][0].split(';')[0].slice(10))
 
@@ -109,9 +122,6 @@ describe("POST /auth", function () {
             position: expect.any(Number),
             certification: expect.any(Number),
             start_date: expect.any(String),
-            jwt_token: expect.any(String),
-            session_id: expect.any(String),
-            password_reset_token: null,
             first_login: true
         })
 
@@ -152,9 +162,6 @@ describe("POST /auth", function () {
             position: expect.any(Number),
             certification: expect.any(Number),
             start_date: expect.any(String),
-            jwt_token: null,
-            session_id: null,
-            password_reset_token: null,
             first_login: true
         })
         expect(updatePasswordResp.header['set-cookie'][0].slice(0, 9)).toEqual('sessionId')
@@ -176,9 +183,7 @@ describe("POST /auth", function () {
             position: expect.any(Number),
             certification: expect.any(Number),
             start_date: expect.any(String),
-            jwt_token: expect.any(String),
-            session_id: expect.any(String),
-            password_reset_token: null,
+        
             first_login: true
         })
 

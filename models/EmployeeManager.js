@@ -119,7 +119,8 @@ class EmployeeManager {
     static async updateDatabaseTokens(id, jwt, session) {
 
         try {
-            const res2 = await db.query(`UPDATE employees SET jwt_token =$1, session_id = $2 WHERE employee_id =$3 returning *`, [jwt, session, id]);
+            const res2 = await db.query(`UPDATE employees SET jwt_token =$1, session_id = $2 WHERE employee_id =$3 returning
+            certification,email,employee_id,first_login, first_name, last_name, position, start_date`, [jwt, session, id]);
             const loggedInUser = res2.rows[0]
            
             delete loggedInUser.password;
@@ -207,7 +208,9 @@ class EmployeeManager {
     static async whoAmI(sessionId) {
 
         try {
-            let res = await db.query(`SELECT * FROM employees WHERE session_id = $1`, [sessionId]);
+            let res = await db.query(`SELECT certification, email,
+            employee_id, first_login, first_name, last_name, position,
+            start_date FROM employees WHERE session_id = $1`, [sessionId]);
             if(!res.rows.length) return {noUser: "unable to auth" }
             const user = res.rows[0];
             delete user.password;
@@ -226,6 +229,7 @@ class EmployeeManager {
 
         try {
             let res = await db.query(`SELECT jwt_token FROM employees WHERE session_id = $1`, [sessionId]);
+            if(!res.rows.length) throw new Error('No user found with that session ID.')
             const user = res.rows[0];
            
 
@@ -283,7 +287,8 @@ class EmployeeManager {
             const hashedPassword = await bcrypt.hash(newPassword, 10);
             const id = verifiedUser.employee_id;
 
-            let userQuery = await db.query(`UPDATE employees SET password = $1, password_reset_token = $2 WHERE employee_id = $3 returning *`, [hashedPassword, null, id]);
+            let userQuery = await db.query(`UPDATE employees SET password = $1, password_reset_token = $2 WHERE employee_id = $3 returning 
+            certification,email,employee_id,first_login, first_name, last_name, position, start_date`, [hashedPassword, null, id]);
 
             let user = userQuery.rows[0]
             let { jwtToken, session } = await this.createNewTokens(user.employee_id, user.position)
@@ -307,10 +312,11 @@ class EmployeeManager {
             // if (!auth) return false;
        
             const query = `UPDATE employees SET password = $1 ${firstLogin === true ? ' ,first_login = false' : ''}
-            WHERE employee_id = $2 returning *`;
+            WHERE employee_id = $2 returning certification,email,employee_id,first_login, first_name, last_name, position, start_date`;
             
             const hashedPassword = await bcrypt.hash(newPassword, 10);
             let userQuery = await db.query(query, [hashedPassword, id]);
+            if(!userQuery.rows.length) throw new Error('User not found');
             let user = userQuery.rows[0]
             delete user.password;
             return user;
@@ -327,18 +333,18 @@ class EmployeeManager {
     static async editEmployee(data, employeeId) {
 
         try {
-            console.log(data)
+           
             const { first_name, last_name, position, certification, start_date, email } = data;
+            if(!first_name.length || !last_name.length || !email.length) throw new Error('Important details missing.')
             const result = await db.query(`
         UPDATE employees SET first_name = $1, last_name = $2, position = $3, certification = $4,
         start_date = $5, email = $6
-        WHERE employee_id = $7 RETURNING *`, [first_name, last_name, position, certification, start_date, email, +employeeId]);
+        WHERE employee_id = $7 RETURNING certification,email,employee_id,first_login, first_name, last_name, position, start_date`, [first_name, last_name, position, certification, start_date, email, +employeeId]);
             let user = result.rows[0];
-            delete user.password;
             return user;
         }
         catch (e) {
-            console.log(e)
+          
             return e;
         }
     }
@@ -362,8 +368,8 @@ class EmployeeManager {
         try {
 
             const result = await db.query(`
-        UPDATE employees set active = $1 WHERE employee_id = $2`, [status, employeeId]);
-            return result.rows;
+        UPDATE employees set active = $1 WHERE employee_id = $2 returning employee_id, first_name, last_name, active`, [status, employeeId]);
+            return result.rows[0];
         }
         catch (e) {
 

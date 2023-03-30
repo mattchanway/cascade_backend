@@ -31,6 +31,7 @@ CREATE TABLE certifications(
 CREATE TABLE employees (
     employee_id SERIAL PRIMARY KEY,
     password VARCHAR(200) NOT NULL,
+    active BOOLEAN default true,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     email TEXT NOT NULL,
@@ -54,4 +55,3 @@ CREATE TABLE timecards (
     time_submitted TIMESTAMP default CURRENT_TIMESTAMP,
     location_submitted TEXT,
     notes TEXT);
-

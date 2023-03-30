@@ -61,7 +61,8 @@ INSERT INTO positions(position_name, position_base_pay) VALUES('Employee', 0.00)
 INSERT INTO certifications(certification_name, certification_pay) VALUES ('None', 0.00), ('Apprentice', 5.00), ('Journeyman', 15.00);
 
 INSERT INTO employees(password,first_name, last_name, email,position, certification, start_date, jwt_token, session_id, password_reset_token, first_login) 
-VALUES('password','Matt','Chanway', 'matthewchanway@gmail.com',3,1,'2022-12-01',null,null,null,true),
+VALUES('password','Matt','Chanway', 'matthewchanway@gmail.com',3,1,'2022-12-01',null,null,null,true);
+
 
 INSERT INTO jobs(job_id, job_name, job_address_street_line1, job_address_street_unit, job_address_street_city, job_description, shop_docs_link)
 VALUES('400-22044', 'Dr. Oonchi', '1845 Marine Drive', null, 'West Vancouver', 'Doctors office','https://www.dropbox.com/sh/diwnsimhvkiy7hs/AADn3VkGDe8H4YwKqYqzJXj7a?dl=0')
