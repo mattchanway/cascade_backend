@@ -15,7 +15,7 @@ class EmployeeManager {
             return result.rows;
         }
         catch (e) {
-            return e;
+            throw e;
         }
     }
 
@@ -24,7 +24,7 @@ class EmployeeManager {
             const date = new Date();
             date.setDate(date.getDate() - 30);
             let formattedDate = date.toLocaleDateString();
-        
+
 
             const result = await db.query(`
         SELECT t.job_id, t.reg_time, t.overtime, t.expenses, t.notes, t.location_submitted, t.timecard_date,
@@ -45,7 +45,7 @@ class EmployeeManager {
                  join  positions p on p.position_id = e.position
                  join certifications c on c.certification_id = e.certification
                 WHERE e.employee_id = $1`, [id]);
-                if(!newResult.rows.length) return false;
+                if (!newResult.rows.length) return false;
                 let userData = newResult.rows[0];
                 return { userData: userData, timecardsData: [] };
             }
@@ -66,7 +66,7 @@ class EmployeeManager {
             return { userData, timecardsData }
         }
         catch (e) {
-            return e;
+            throw e;
         }
     }
 
@@ -87,7 +87,7 @@ class EmployeeManager {
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 
@@ -97,11 +97,11 @@ class EmployeeManager {
 
             const result = await db.query(`SELECT * FROM employees WHERE employee_id = $1`, [id]);
             const user = result.rows[0];
-            
+
 
             if (user) {
                 const isValid = await bcrypt.compare(password, user.password);
-                
+
                 if (isValid) {
                     let { jwtToken, session } = await this.createNewTokens(id, user.position);
                     let fin = await this.updateDatabaseTokens(id, jwtToken, session);
@@ -112,7 +112,7 @@ class EmployeeManager {
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 
@@ -120,38 +120,39 @@ class EmployeeManager {
 
         try {
             const res2 = await db.query(`UPDATE employees SET jwt_token =$1, session_id = $2 WHERE employee_id =$3 returning *`,
-             [jwt, session, id]);
+                [jwt, session, id]);
             const loggedInUser = res2.rows[0]
-           
+
             delete loggedInUser.password;
             return loggedInUser;
         }
 
         catch (e) {
-            return e;
+            throw e;
         }
 
     }
 
-    static async rotateJwtToken(employee_id, position){
+    static async rotateJwtToken(employee_id, position) {
 
         try {
 
             let jwtPayload = {
                 employee_id: employee_id,
                 position: position,
-                exp: Date.now() + ((1000 * 60) * 15)
+                // exp: Date.now() + ((1000 * 60) * 15)
+                exp: Math.floor(Date.now() / 1000) + (60 * 15)
             };
             let jwtToken = jwt.sign(jwtPayload, SECRET_KEY);
             const res2 = await db.query(`UPDATE employees SET jwt_token =$1  WHERE employee_id =$2 returning jwt_token`, [jwtToken, employee_id]);
-            if(!res2.rows.length) throw new Error('No user found to for JWT rotation.')
+            if (!res2.rows.length) throw new Error('No user found to for JWT rotation.')
             return res2.rows[0].jwt_token
 
         }
 
-        catch(e){
+        catch (e) {
 
-            return e;
+            throw e;
         }
 
 
@@ -164,12 +165,14 @@ class EmployeeManager {
             let jwtPayload = {
                 employee_id: employee_id,
                 position: position,
-                exp: Date.now() + ((1000 * 60) * 15)
+                // exp: Date.now() + ((1000 * 60) * 15)
+                exp: Math.floor(Date.now() / 1000) + (60 * 15)
             };
             let sessionPayload = {
                 employee_id: employee_id,
                 position: position,
-                exp: Date.now() + ((1000 * 60) * 480)
+                // exp: Date.now() + ((1000 * 60) * 480)
+                exp: Math.floor(Date.now() / 1000) + (60 * 480)
             };
 
             let jwtToken = jwt.sign(jwtPayload, SECRET_KEY);
@@ -177,7 +180,7 @@ class EmployeeManager {
             return { jwtToken, session }
         }
         catch (e) {
-            return e;
+            throw e;
         }
     }
 
@@ -186,20 +189,20 @@ class EmployeeManager {
         try {
             let passwordPayload = {
                 employee_id: employee_id,
-                exp: Math.floor(Date.now()/1000) + (1)
-               
+                exp: Math.floor(Date.now() / 1000) + (60 * 10)
+
             };
-          
+
             let passwordToken = jwt.sign(passwordPayload, SECRET_KEY);
 
             let insertQuery = await db.query(`UPDATE employees set password_reset_token = $1 WHERE
             employee_id = $2 returning password_reset_token, email`, [passwordToken, employee_id]);
-            if (insertQuery.rows.length === 0) return({userNotFound: "User Not Found"})
+            if (insertQuery.rows.length === 0) return ({ userNotFound: "User Not Found" })
 
             return { passwordToken: insertQuery.rows[0].password_reset_token, email: insertQuery.rows[0].email }
         }
         catch (e) {
-            return e;
+            throw e;
         }
 
 
@@ -212,7 +215,7 @@ class EmployeeManager {
             let res = await db.query(`SELECT certification, email,
             employee_id, first_login, first_name, last_name, position,
             start_date FROM employees WHERE session_id = $1`, [sessionId]);
-            if(!res.rows.length) return {noUser: "unable to auth" }
+            if (!res.rows.length) return { noUser: "unable to auth" }
             const user = res.rows[0];
             delete user.password;
 
@@ -222,7 +225,7 @@ class EmployeeManager {
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 
@@ -230,15 +233,15 @@ class EmployeeManager {
 
         try {
             let res = await db.query(`SELECT jwt_token FROM employees WHERE session_id = $1`, [sessionId]);
-            if(!res.rows.length) throw new Error('No user found with that session ID.')
+            if (!res.rows.length) throw new Error('No user found with that session ID.')
             const user = res.rows[0];
-           
+
 
             return user.jwt_token;
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 
@@ -252,7 +255,7 @@ class EmployeeManager {
             return false;
         }
         catch (e) {
-            return e;
+            throw e;
 
         }
 
@@ -270,7 +273,7 @@ class EmployeeManager {
 
         }
         catch (e) {
-            return e;
+            throw e;
 
         }
 
@@ -280,16 +283,7 @@ class EmployeeManager {
     static async updateForgottenPassword(token, newPassword) {
 
         try {
-                console.log('LOOK', token)
-            let verifyToken =  jwt.verify(token, SECRET_KEY)
-            console.log('verify token', verifyToken, Date.now(),Date.now() > verifyToken.exp)
-
-            if(verifyToken && Date.now() >= (verifyToken.exp)){
-                console.log('caught')
-                // throw new Error('Token expired. Please try again and reset your password within 10 minutes.')
-            }
-            console.log('err not thrown')
-
+            jwt.verify(token, SECRET_KEY)
             let verifiedUser = await this.getUserFromPasswordToken(token);
 
             if (!verifiedUser) return false;
@@ -308,8 +302,7 @@ class EmployeeManager {
         }
 
         catch (e) {
-            console.log('catch in method', e, typeof(e))
-            return e;
+            throw e;
         }
 
     }
@@ -320,13 +313,13 @@ class EmployeeManager {
 
             // let auth = await this.authenticate(id, oldPassword);
             // if (!auth) return false;
-       
+
             const query = `UPDATE employees SET password = $1 ${firstLogin === true ? ' ,first_login = false' : ''}
             WHERE employee_id = $2 returning certification,email,employee_id,first_login, first_name, last_name, position, start_date`;
-            
+
             const hashedPassword = await bcrypt.hash(newPassword, 10);
             let userQuery = await db.query(query, [hashedPassword, id]);
-            if(!userQuery.rows.length) throw new Error('User not found');
+            if (!userQuery.rows.length) throw new Error('User not found');
             let user = userQuery.rows[0]
             delete user.password;
             return user;
@@ -334,7 +327,7 @@ class EmployeeManager {
 
         }
         catch (e) {
-            return e;
+            throw e;
 
         }
 
@@ -343,9 +336,9 @@ class EmployeeManager {
     static async editEmployee(data, employeeId) {
 
         try {
-           
+
             const { first_name, last_name, position, certification, start_date, email } = data;
-            if(!first_name.length || !last_name.length || !email.length) throw new Error('Important details missing.')
+            if (!first_name.length || !last_name.length || !email.length) throw new Error('Important details missing.')
             const result = await db.query(`
         UPDATE employees SET first_name = $1, last_name = $2, position = $3, certification = $4,
         start_date = $5, email = $6
@@ -354,8 +347,8 @@ class EmployeeManager {
             return user;
         }
         catch (e) {
-          
-            return e;
+
+            throw e;
         }
     }
 
@@ -369,7 +362,7 @@ class EmployeeManager {
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 
@@ -383,7 +376,7 @@ class EmployeeManager {
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 
@@ -404,7 +397,7 @@ class EmployeeManager {
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 

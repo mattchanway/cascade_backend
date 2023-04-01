@@ -12,7 +12,7 @@ class JobsManager {
             return result.rows;
         }
         catch (e) {
-            return e;
+            throw e;
         }
     }
 
@@ -26,7 +26,7 @@ class JobsManager {
             return result.rows[0];
         }
         catch (e) {
-            return e;
+            throw e;
         }
     }
 
@@ -44,7 +44,7 @@ class JobsManager {
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 
@@ -63,7 +63,7 @@ class JobsManager {
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 
@@ -79,7 +79,7 @@ class JobsManager {
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 
@@ -93,7 +93,7 @@ class JobsManager {
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 

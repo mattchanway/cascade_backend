@@ -115,9 +115,9 @@ describe("Job Manager", function () {
     test("add an employee - invalid data", async function () {
 
         let data = { first_name: null, last_name: 'Jones', email: 'gj@gmail.com', position: 1, certification: 1, start_date: '2023-01-01' }
-        let newEmp = await EmployeeManager.addEmployee(data);
+        let newEmp = EmployeeManager.addEmployee(data);
 
-        expect((newEmp)).toBeInstanceOf(Error)
+        expect((newEmp)).rejects.toThrow(new Error())
 
     })
 

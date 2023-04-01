@@ -16,7 +16,7 @@ const CRYPTO_KEY = crypto.scryptSync(CRYPTO_PASSWORD, SALT, 32);
    return `${iv.toString('hex')}:.${encrypted.toString('hex')}`;
    }
    catch(e){
-      return e;
+      throw e;
    }
 
 }
@@ -39,7 +39,7 @@ const CRYPTO_KEY = crypto.scryptSync(CRYPTO_PASSWORD, SALT, 32);
  return decrypted.toString();
    }
    catch(e){
-      return e;
+      throw e;
    }
 
    

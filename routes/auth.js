@@ -82,7 +82,7 @@ router.post("/password-forgotten-update/:token", async function (req, res, next)
         let { password } = req.body;
 
         let result = await EmployeeManager.updateForgottenPassword(token, password);
-       console.log('typeof result',typeof(result))
+       console.log('typeof result',result)
       
         
         let encrypted = encrypt(result.session);
@@ -93,7 +93,7 @@ router.post("/password-forgotten-update/:token", async function (req, res, next)
 
     }
     catch (e) {
-        console.log('ROUTE CATCH BLOCK')
+      
         return next(e);
     }
 })

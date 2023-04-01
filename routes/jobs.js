@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const JobsManager = require("../models/JobsManager");
-const { authenticateJWT, ensureLoggedIn, ensureCorrectUserOrManager, ensureManager } = require("../middleware/middlewareAuth");
+const { authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn, ensureCorrectUserOrManager, ensureManager } = require("../middleware/middlewareAuth");
 
 
 // GET / get all jobs
 
-router.get("/",authenticateJWT, ensureLoggedIn,  async function (req, res, next) {
+router.get("/",authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn,  async function (req, res, next) {
 
     try {
         if(!req.cookies.sessionId) return res.json({noUser:'No User'});
@@ -19,7 +19,7 @@ router.get("/",authenticateJWT, ensureLoggedIn,  async function (req, res, next)
     }
 });
 
-router.get("/:id",authenticateJWT, ensureLoggedIn, async function (req, res, next) {
+router.get("/:id",authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn, async function (req, res, next) {
 
     try {
         
@@ -35,7 +35,7 @@ router.get("/:id",authenticateJWT, ensureLoggedIn, async function (req, res, nex
     }
 });
 
-router.post("/", authenticateJWT, ensureManager, async function (req, res, next) {
+router.post("/", authenticateSessionAndCheckJwt, rotateJwt, ensureManager, async function (req, res, next) {
 
     try {
        
@@ -48,7 +48,7 @@ router.post("/", authenticateJWT, ensureManager, async function (req, res, next)
     }
 });
 
-router.put("/:id", authenticateJWT, ensureManager, async function (req, res, next) {
+router.put("/:id", authenticateSessionAndCheckJwt, rotateJwt, ensureManager, async function (req, res, next) {
 
     try {
         let id = req.params.id;
@@ -62,7 +62,7 @@ router.put("/:id", authenticateJWT, ensureManager, async function (req, res, nex
     }
 });
 
-router.patch("/:id", authenticateJWT, ensureManager, async function (req, res, next) {
+router.patch("/:id", authenticateSessionAndCheckJwt, rotateJwt, ensureManager, async function (req, res, next) {
 
     try {
         
@@ -77,7 +77,7 @@ router.patch("/:id", authenticateJWT, ensureManager, async function (req, res, n
     }
 });
 
-router.delete("/:id", authenticateJWT, ensureManager, async function (req, res, next) {
+router.delete("/:id", authenticateSessionAndCheckJwt, rotateJwt, ensureManager, async function (req, res, next) {
 
     // should only be used if a job was created by mistake
 

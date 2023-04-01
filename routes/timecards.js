@@ -1,5 +1,5 @@
 const express = require("express");
-const { authenticateJWT, ensureLoggedIn, ensureManager } = require("../middleware/middlewareAuth");
+const { authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn, ensureManager } = require("../middleware/middlewareAuth");
 const EmployeeManager = require("../models/EmployeeManager");
 const router = express.Router();
 const TimecardsManager = require("../models/TimecardsManager");
@@ -8,7 +8,7 @@ const JobsManager = require("../models/JobsManager");
 
 // GET / get all employees
 
-router.get("/", authenticateJWT, ensureManager, async function (req, res, next) {
+router.get("/", authenticateSessionAndCheckJwt, rotateJwt, ensureManager, async function (req, res, next) {
 
     try {
 
@@ -21,7 +21,7 @@ router.get("/", authenticateJWT, ensureManager, async function (req, res, next) 
     }
 });
 
-router.get("/reports/weekly/:id", authenticateJWT, async function (req, res, next) {
+router.get("/reports/weekly/:id", authenticateSessionAndCheckJwt, rotateJwt, async function (req, res, next) {
 
     try {
         // ROUTE TO SOURCE DATA FOR 'MY-TIMECARDS' view
@@ -50,7 +50,7 @@ router.get("/reports/weekly/:id", authenticateJWT, async function (req, res, nex
 //     }
 // });
 
-router.post("/", authenticateJWT, ensureLoggedIn, async function (req, res, next) {
+router.post("/", authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn, async function (req, res, next) {
 
     try {
 
@@ -63,7 +63,7 @@ router.post("/", authenticateJWT, ensureLoggedIn, async function (req, res, next
     }
 });
 
-router.post("/multi", authenticateJWT, ensureLoggedIn, async function (req, res, next) {
+router.post("/multi", authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn, async function (req, res, next) {
 
     try {
 
@@ -76,7 +76,7 @@ router.post("/multi", authenticateJWT, ensureLoggedIn, async function (req, res,
     }
 });
 
-router.put("/:id", authenticateJWT, ensureManager, async function (req, res, next) {
+router.put("/:id", authenticateSessionAndCheckJwt, rotateJwt, ensureManager, async function (req, res, next) {
 
     try {
         let id = req.params.id;
@@ -149,7 +149,7 @@ router.get("/jobs-report", async function (req, res, next) {
     }
 });
 
-router.get("/filter", authenticateJWT, ensureManager, async function (req, res, next) {
+router.get("/filter", authenticateSessionAndCheckJwt, rotateJwt, ensureManager, async function (req, res, next) {
 
     try {
 

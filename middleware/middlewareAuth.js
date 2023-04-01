@@ -13,38 +13,50 @@ const { decrypt, encrypt } = require("../encryption");
  * It's not an error if no token was provided or if the token is not valid.
  */
 
-async function authenticateJWT(req, res, next) {
+async function authenticateSessionAndCheckJwt(req, res, next) {
+        if(!req.cookies.sessionId) return next()
+        let sessionTokenPayload;
     try {
-        if (req.cookies.sessionId) {
-        
             let split = req.cookies.sessionId.split(':.');
             let decryptObj = { iv: split[0], encryptedData: split[1] }
             let decrypted = decrypt(decryptObj)
-            const sessionTokenPayload = jwt.verify(decrypted, SECRET_KEY);
-            
+            sessionTokenPayload = jwt.verify(decrypted, SECRET_KEY);
             const dbFetch = await EmployeeManager.getJwt(decrypted);
             const dbTokenPayload = jwt.verify(dbFetch, SECRET_KEY);
-            
-            if (dbTokenPayload && Date.now() >= dbTokenPayload.exp) {
-                // console.log('ROTATING TOKEN')
-                const jwtToken = await EmployeeManager.rotateJwtToken(sessionTokenPayload.employee_id, sessionTokenPayload.position)
-                res.locals.user = jwt.verify(jwtToken, SECRET_KEY);
-                return next();
-            }
-
-
             res.locals.user = dbTokenPayload;
-            // console.log("NO ROTATION")
+            console.log("NO ROTATION")
             return next();
-        }
-      
-        return next();
-    } catch (err) {
         
+    } catch (err) {
+        if(sessionTokenPayload && err.name === 'TokenExpiredError') res.locals.rotate = sessionTokenPayload
      
         return next();
     }
 }
+
+// ** Middleware to rotate JWT if necessary
+
+async function rotateJwt(req, res, next){
+
+    try{
+        if(res.locals.user) return next();
+        
+        else if(res.locals.rotate){
+            console.log('new middleware rotation')
+            const jwtToken = await EmployeeManager.rotateJwtToken(res.locals.rotate.employee_id, res.locals.rotate.position);
+            res.locals.user = jwt.verify(jwtToken, SECRET_KEY);
+            return next();
+        }
+
+        return next()
+    }
+
+    catch(e){
+        return next(e)
+    }
+
+}
+
 
 /** Middleware to use when they must be logged in.
  *
@@ -107,7 +119,8 @@ function ensureCorrectUser(req, res, next) {
 }
 
 module.exports = {
-    authenticateJWT,
+    authenticateSessionAndCheckJwt,
+    rotateJwt,
     ensureLoggedIn,
     ensureManager,
     ensureCorrectUserOrManager,

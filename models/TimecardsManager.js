@@ -13,7 +13,7 @@ class TimecardsManager {
             return result.rows;
         }
         catch (e) {
-            return e;
+            throw e;
         }
     }
 
@@ -25,7 +25,7 @@ class TimecardsManager {
             return result.rows[0];
         }
         catch (e) {
-            return e;
+            throw e;
         }
     }
 
@@ -97,7 +97,7 @@ class TimecardsManager {
         }
         catch (e) {
             
-            return e;
+            throw e;
         }
     }
 
@@ -131,7 +131,7 @@ class TimecardsManager {
         }
         catch (e) {
             
-            return e;
+            throw e;
         }
     }
 
@@ -148,7 +148,7 @@ class TimecardsManager {
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 
@@ -162,7 +162,7 @@ class TimecardsManager {
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 
@@ -177,7 +177,7 @@ class TimecardsManager {
 
         catch (e) {
 
-            return e;
+            throw e;
         }
 
 
@@ -192,7 +192,7 @@ class TimecardsManager {
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 
@@ -205,7 +205,7 @@ class TimecardsManager {
         }
         catch (e) {
 
-            return e;
+            throw e;
         }
     }
 
@@ -260,8 +260,8 @@ class TimecardsManager {
             return {table :result.rows, summary: {totalOT, totalReg, totalExp}};
         }
         catch (e) {
-            console.log(e)
-            return e
+     
+            throw e
 
         }
     }
