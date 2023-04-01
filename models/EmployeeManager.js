@@ -186,7 +186,8 @@ class EmployeeManager {
         try {
             let passwordPayload = {
                 employee_id: employee_id,
-                exp: Date.now() + ((1000 * 60) * 15)
+                exp: Math.floor(Date.now()/1000) + (1)
+               
             };
           
             let passwordToken = jwt.sign(passwordPayload, SECRET_KEY);
@@ -260,7 +261,7 @@ class EmployeeManager {
     static async getUserFromPasswordToken(token) {
 
         try {
-
+            console.log('getUserFromPw', token)
             let queryRes = await db.query(`SELECT * FROM employees WHERE password_reset_token = $1`, [token]);
             if (queryRes.rows.length === 0) return null;
             const user = queryRes.rows[0];
@@ -279,6 +280,15 @@ class EmployeeManager {
     static async updateForgottenPassword(token, newPassword) {
 
         try {
+                console.log('LOOK', token)
+            let verifyToken =  jwt.verify(token, SECRET_KEY)
+            console.log('verify token', verifyToken, Date.now(),Date.now() > verifyToken.exp)
+
+            if(verifyToken && Date.now() >= (verifyToken.exp)){
+                console.log('caught')
+                // throw new Error('Token expired. Please try again and reset your password within 10 minutes.')
+            }
+            console.log('err not thrown')
 
             let verifiedUser = await this.getUserFromPasswordToken(token);
 
@@ -298,7 +308,7 @@ class EmployeeManager {
         }
 
         catch (e) {
-
+            console.log('catch in method', e, typeof(e))
             return e;
         }
 
