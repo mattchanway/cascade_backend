@@ -65,8 +65,18 @@ describe("Job Manager", function(){
 
     test("Add invalid job", async function(){
 
-      let newJobRes = await JobsManager.addJob(invJob);
-      expect(newJobRes).toBeInstanceOf(Error)
+      
+      expect.assertions(1);
+      try{
+        await JobsManager.addJob(invJob);
+      }
+      catch(e){
+
+        expect(e).toEqual(new Error('Key details are missing.'))
+
+      }
+
+      
     })
 
     test("Edit Job", async function(){
@@ -88,9 +98,15 @@ describe("Job Manager", function(){
       let data = {job_name:'athletics store edited', job_address_street_line1:'456 Real St',
       job_address_street_unit:'#2', job_address_street_city:'Vancouver City', job_description:'big job'}
 
-      
-      let editJobRes = await JobsManager.editJob(data, '0');
-      expect(editJobRes).toBeInstanceOf(Error)
+      expect.assertions(1);
+      try{
+        await JobsManager.editJob(data, '0');
+      }
+      catch(e){
+
+        expect(e).toEqual(new Error('Job not found'))
+
+      }
     })
 
     test("Edit job status", async function(){
@@ -107,9 +123,16 @@ describe("Job Manager", function(){
 
     test("Edit non-existent job status", async function(){
 
-     
-      let editJobRes = await JobsManager.updateJobStatus('0', false);
-      expect(editJobRes).toBeInstanceOf(Error)
+      expect.assertions(1);
+      try{
+        await JobsManager.updateJobStatus('0', false);
+      }
+      catch(e){
+
+        expect(e).toEqual(new Error('Job not found.'))
+
+      }
+
    
     })
 

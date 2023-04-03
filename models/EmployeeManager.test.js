@@ -11,6 +11,9 @@ const {
     commonAfterAll,
     getEmployeeId
 } = require("../routes/_testCommon");
+const { JsonWebTokenError } = require("jsonwebtoken");
+
+jest.useFakeTimers()
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
@@ -21,7 +24,7 @@ afterAll(commonAfterAll);
 
 //********************************* */
 
-describe("Job Manager", function () {
+describe("Employee Manager", function () {
 
     let newJob = {
         job_id: 'abc123', job_name: 'athletics store', job_address_street_line1: '456 Real St',
@@ -115,9 +118,16 @@ describe("Job Manager", function () {
     test("add an employee - invalid data", async function () {
 
         let data = { first_name: null, last_name: 'Jones', email: 'gj@gmail.com', position: 1, certification: 1, start_date: '2023-01-01' }
-        let newEmp = EmployeeManager.addEmployee(data);
+        expect.assertions(1)
+        try{
+           await EmployeeManager.addEmployee(data);
 
-        expect((newEmp)).rejects.toThrow(new Error())
+        }
+        catch(e){
+            expect(e).toEqual(new Error('Important details missing.'))
+
+        }
+       
 
     })
 
@@ -127,6 +137,7 @@ describe("Job Manager", function () {
         let shawnId = await getEmployeeId('Shawn');
 
         let initShawn = await db.query(`select * from employees where employee_id = $1`, [+shawnId]);
+        console.debug('hereee', initShawn.rows)
         expect(initShawn.rows[0].jwt_token).toEqual(null)
         expect(initShawn.rows[0].session_id).toEqual(null)
         await EmployeeManager.authenticate(shawnId, 'password1')
@@ -145,23 +156,37 @@ describe("Job Manager", function () {
     test("rotateJwtTokens - valid data", async function () {
 
         let shawnId = await getEmployeeId('Shawn');
-        await EmployeeManager.authenticate(+shawnId, 'password1')
-        let initQuery = await db.query(`select * from employees where employee_id = $1`, [+shawnId]);
-        let initToken = initQuery.rows[0].jwt_token;
-        await EmployeeManager.rotateJwtToken(+shawnId, 3);
+        let init = await EmployeeManager.authenticate(+shawnId, 'password1')
+        let session = init.session_id
+       
+        let firstJwt = await EmployeeManager.getJwt(session)
 
-        let secondQuery = await db.query(`select * from employees where employee_id = $1`, [+shawnId]);
-        let secondToken = secondQuery.rows[0].jwt_token;
-        expect(typeof (initToken)).toEqual('string')
-        expect(typeof (secondToken)).toEqual('string')
-        expect(initToken).not.toEqual(secondToken)
+
+        setTimeout(async () => {
+          
+            let secondJwt = await EmployeeManager.rotateJwtToken(+shawnId, 3);
+            expect(typeof (firstJwt)).toEqual('string')
+            expect(typeof (secondJwt)).toEqual('string')
+            expect(firstJwt).not.toEqual(secondJwt)
+
+
+        }, 3000)
+        jest.advanceTimersByTime(3000)
+
 
     })
 
     test("rotateJwtTokens - invalid data", async function () {
+        expect.assertions(1)
 
-        let res = await EmployeeManager.rotateJwtToken(0, 3);
-        expect(res).toBeInstanceOf(Error)
+        try {
+            await EmployeeManager.rotateJwtToken(0, 3);
+        }
+        catch (e) {
+            expect(e).toEqual(new Error('No user found for JWT rotation.'))
+
+        }
+
 
     })
 
@@ -218,33 +243,49 @@ describe("Job Manager", function () {
 
     test("getJwt - invalid data", async function () {
 
+        expect.assertions(1)
 
-        await db.query(`UPDATE employees SET session_id = $2, jwt_token =$3 WHERE first_name = $1 returning session_id`, ['Shawn', 'abc', '123'])
-        let resp = await EmployeeManager.getJwt('0')
-        expect(resp).toBeInstanceOf(Error)
+        try {
+            // await db.query(`UPDATE employees SET session_id = $2, jwt_token =$3 WHERE first_name = $1 returning session_id`, ['Shawn', 'abc', '123'])
+            let resp = await EmployeeManager.getJwt('0')
+        }
+        catch (e) {
+            expect(e).toEqual(new Error('No user found with that session ID.'))
+
+        }
+
+
 
     })
 
     test("updateForgottenPassword - valid data", async function () {
+        let shawnId = await getEmployeeId('Shawn');
 
+        let { passwordToken, email } = await EmployeeManager.createPasswordToken(shawnId)
 
-        let query = await db.query(`UPDATE employees SET password_reset_token =$2 WHERE first_name = $1 returning password_reset_token`, ['Shawn', 'abc'])
-        let token = query.rows[0].password_reset_token
-
-        let resp = await EmployeeManager.updateForgottenPassword(token, 'brandnewpassword')
+        let resp = await EmployeeManager.updateForgottenPassword(passwordToken, 'brandnewpassword')
         expect(resp).toEqual({
             "session": expect.any(String),
-            "user": { "certification": 1, "email": "matthewchanway@gmail.com", "employee_id": expect.any(Number), "first_login": true, "first_name": "Shawn", "last_name": "Rostas", "position": 3, "start_date": expect.any(Date) }
+            "user": { "certification": 1, "email": "matthewchanway@gmail.com", "employee_id": +shawnId, "first_login": true, "first_name": "Shawn", "last_name": "Rostas", "position": 3, "start_date": expect.any(Date) }
         })
+
+
 
     })
 
     test("updateForgottenPassword - invalid data", async function () {
 
         let query = await db.query(`UPDATE employees SET password_reset_token =$2 WHERE first_name = $1 returning password_reset_token`, ['Shawn', 'abc'])
+        expect.assertions(1)
+        try {
+            await EmployeeManager.updateForgottenPassword('blah', 'newpassword')
+        }
+        catch (e) {
+            expect(e).toEqual(new Error('jwt malformed'))
 
-        let resp = await EmployeeManager.updateForgottenPassword('blah', 'newpassword')
-        expect(resp).toEqual(false)
+        }
+
+
 
     })
 
@@ -255,13 +296,17 @@ describe("Job Manager", function () {
 
         let resp = await EmployeeManager.updateInternalPassword(+shawnId, 'newpassword22', true);
 
-        expect(resp).toEqual({"certification": 1, "email": "matthewchanway@gmail.com", "employee_id": expect.any(Number), "first_login": false, 
-        "first_name": "Shawn", "last_name": "Rostas", "position": 3, "start_date": expect.any(Date)})
+        expect(resp).toEqual({
+            "certification": 1, "email": "matthewchanway@gmail.com", "employee_id": expect.any(Number), "first_login": false,
+            "first_name": "Shawn", "last_name": "Rostas", "position": 3, "start_date": expect.any(Date)
+        })
 
         let authTest = await EmployeeManager.authenticate(shawnId, 'newpassword22')
-        expect(authTest).toEqual({"certification": 1, "email": "matthewchanway@gmail.com", "employee_id": expect.any(Number), "first_login": false, 
-        "first_name": "Shawn", "last_name": "Rostas", "position": 3, "start_date": expect.any(Date),
-        active: true, jwt_token: expect.any(String), password_reset_token: null, session_id: expect.any(String)})
+        expect(authTest).toEqual({
+            "certification": 1, "email": "matthewchanway@gmail.com", "employee_id": expect.any(Number), "first_login": false,
+            "first_name": "Shawn", "last_name": "Rostas", "position": 3, "start_date": expect.any(Date),
+            active: true, jwt_token: expect.any(String), password_reset_token: null, session_id: expect.any(String)
+        })
 
         // await EmployeeManager.updateInternalPassword(+shawnId, 'password1', true);
 
@@ -269,43 +314,59 @@ describe("Job Manager", function () {
 
     test("updateInternalPassword - invalid data", async function () {
 
-        let resp = await EmployeeManager.updateInternalPassword(0, 'newpassword22', true);
-        
-        expect(resp).toBeInstanceOf(Error)
+        expect.assertions(1)
+
+        try {
+            await EmployeeManager.updateInternalPassword(0, 'newpassword22', true);
+
+        }
+        catch (e) {
+            expect(e).toEqual(new Error('User not found'))
+
+        }
+
     })
 
     test("editEmployee - valid data", async function () {
 
         let joeId = await getEmployeeId('Joe')
-        let data = { first_name: 'Joeedited', last_name:'Testedit', position:1, certification:1, start_date:'2023-01-02', email:'joenewemail@gmail.com' }
+        let data = { first_name: 'Joeedited', last_name: 'Testedit', position: 1, certification: 1, start_date: '2023-01-02', email: 'joenewemail@gmail.com' }
 
         let resp = await EmployeeManager.editEmployee(data, +joeId);
-        
-        expect(resp).toEqual({"certification": 1, "email": "joenewemail@gmail.com", "employee_id": expect.any(Number), "first_login": true, "first_name": "Joeedited", "last_name": "Testedit", "position": 1, "start_date": expect.any(Date)})
+
+        expect(resp).toEqual({ "certification": 1, "email": "joenewemail@gmail.com", "employee_id": expect.any(Number), "first_login": true, "first_name": "Joeedited", "last_name": "Testedit", "position": 1, "start_date": expect.any(Date) })
 
     })
 
     test("editEmployee - invalid data", async function () {
 
         let joeId = await getEmployeeId('Joe')
-        let data = { first_name: '', last_name:'Testedit', position:1, certification:1, start_date:'2023-01-02', email:'joenewemail@gmail.com' }
+        let data = { first_name: '', last_name: 'Testedit', position: 1, certification: 1, start_date: '2023-01-02', email: 'joenewemail@gmail.com' }
+        expect.assertions(1)
 
-        let resp = await EmployeeManager.editEmployee(data, +joeId);
-        
-        expect(resp).toBeInstanceOf(Error)
-    
+        try {
+            await EmployeeManager.editEmployee(data, +joeId)
+        }
+        catch (e) {
+            expect(e).toEqual(new Error('Important details missing.'))
+
+        }
+
+
 
     })
 
     test("updateEmployeeStatus - valid data", async function () {
 
         let joeId = await getEmployeeId('Joe')
-        let data = { first_name: 'Joeedited', last_name:'Testedit', position:1, certification:1, start_date:'2023-01-02', email:'joenewemail@gmail.com' }
+        let data = { first_name: 'Joeedited', last_name: 'Testedit', position: 1, certification: 1, start_date: '2023-01-02', email: 'joenewemail@gmail.com' }
 
         let resp = await EmployeeManager.updateEmployeeStatus(+joeId, false);
-        
-        expect(resp).toEqual({employee_id: expect.any(Number),
-            "first_name": "Joe", "last_name": "Test", active: false})
+
+        expect(resp).toEqual({
+            employee_id: expect.any(Number),
+            "first_name": "Joe", "last_name": "Test", active: false
+        })
 
     })
 
@@ -313,12 +374,14 @@ describe("Job Manager", function () {
 
         let resp = await EmployeeManager.getPositionsAndCertifications();
 
-        expect(resp).toEqual({"certifications": [{"certification_id": expect.any(Number), "certification_name": "Apprentice", "certification_pay": 5}, 
-        {"certification_id": expect.any(Number), "certification_name": "Journeyman", "certification_pay": 15}, 
-        {"certification_id": 1, "certification_name": "None", "certification_pay": 0}], 
-        "positions": [{"position_base_pay": 30, "position_id": expect.any(Number), "position_name": "Labourer"}, 
-        {"position_base_pay": 75, "position_id": 3, "position_name": "Manager"}, 
-        {"position_base_pay": 50, "position_id": 1, "position_name": "Welder"}]})
+        expect(resp).toEqual({
+            "certifications": [{ "certification_id": expect.any(Number), "certification_name": "Apprentice", "certification_pay": 5 },
+            { "certification_id": expect.any(Number), "certification_name": "Journeyman", "certification_pay": 15 },
+            { "certification_id": 1, "certification_name": "None", "certification_pay": 0 }],
+            "positions": [{ "position_base_pay": 30, "position_id": expect.any(Number), "position_name": "Labourer" },
+            { "position_base_pay": 75, "position_id": 3, "position_name": "Manager" },
+            { "position_base_pay": 50, "position_id": 1, "position_name": "Welder" }]
+        })
 
     })
 

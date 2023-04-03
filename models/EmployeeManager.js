@@ -75,6 +75,8 @@ class EmployeeManager {
         try {
 
             const { first_name, last_name, email, position, certification, start_date } = data;
+            if (!first_name || !last_name || !email ||
+                !first_name.length || !last_name.length || !email.length || !position || !certification || !start_date) throw new Error('Important details missing.')
             const INIT_PASSWORD = await bcrypt.hash(`${last_name}123`, 10);
             const result = await db.query(`INSERT INTO employees (password,first_name, last_name, 
                 email, position, certification, start_date) 
@@ -145,7 +147,7 @@ class EmployeeManager {
             };
             let jwtToken = jwt.sign(jwtPayload, SECRET_KEY);
             const res2 = await db.query(`UPDATE employees SET jwt_token =$1  WHERE employee_id =$2 returning jwt_token`, [jwtToken, employee_id]);
-            if (!res2.rows.length) throw new Error('No user found to for JWT rotation.')
+            if (!res2.rows.length) throw new Error('No user found for JWT rotation.')
             return res2.rows[0].jwt_token
 
         }
@@ -264,7 +266,7 @@ class EmployeeManager {
     static async getUserFromPasswordToken(token) {
 
         try {
-            console.log('getUserFromPw', token)
+           
             let queryRes = await db.query(`SELECT * FROM employees WHERE password_reset_token = $1`, [token]);
             if (queryRes.rows.length === 0) return null;
             const user = queryRes.rows[0];
@@ -336,7 +338,7 @@ class EmployeeManager {
     static async editEmployee(data, employeeId) {
 
         try {
-
+            
             const { first_name, last_name, position, certification, start_date, email } = data;
             if (!first_name.length || !last_name.length || !email.length) throw new Error('Important details missing.')
             const result = await db.query(`
@@ -347,7 +349,7 @@ class EmployeeManager {
             return user;
         }
         catch (e) {
-
+           
             throw e;
         }
     }

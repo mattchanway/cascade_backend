@@ -160,14 +160,42 @@ describe("Job Manager", function () {
 
     })
 
-    test("Add timecard with null reg time", async function () {
-
+    test("Add timecard with null reg time throws", async function () {
         let joeId = await getEmployeeId('Joe');
         let timecardOne = { job_id: '400-22044', employee_id: +joeId, timecard_date: '2023-03-28', reg_time: null, overtime: 1, expenses: 3.50, notes: 'some notes here' }
-        let timeResp = await TimecardsManager.addTimecard(timecardOne);
+        expect.assertions(1);
 
-        expect(timeResp).toBeInstanceOf(Error)
+        try{
+            await TimecardsManager.addTimecard(timecardOne);
+        }
+        catch(e){
+
+            expect(e).toEqual(new Error('Important details missing.'))
+
+        }   
     })
+
+    test("Add multi-timecard throws if one timecard missing info", async function () {
+
+        let joeId = await getEmployeeId('Joe');
+        let timecardOne = { job_id: null, employee_id: +joeId, timecard_date: '2023-03-28', reg_time: 4, overtime: 0, expenses: 3.50, location_submitted: null, notes: 'some notes here' }
+        let timecardTwo = { job_id: '400-22045', employee_id: +joeId, timecard_date: '2023-03-28', reg_time: 4, overtime: 1, expenses: 5.50, location_submitted: null, notes: 'site 2 notes' }
+        let rows = [timecardOne, timecardTwo]
+        expect.assertions(1)
+
+        
+        try{
+            await TimecardsManager.addMultiTimecard({ rows: rows });
+        }
+        catch(e){
+
+            expect(e).toEqual(new Error('Important details missing.'))
+        }
+
+    })
+
+
+
 
     test("Add multi-timecard", async function () {
 

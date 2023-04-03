@@ -84,7 +84,7 @@ class TimecardsManager {
         try {
             
             const { job_id, employee_id, timecard_date, reg_time, overtime, expenses, time_submitted, location_submitted, notes } = data;
-
+            if(!job_id || !employee_id || !timecard_date || !reg_time) throw new Error('Important details missing.')
 
             const result = await db.query(`INSERT INTO timecards (job_id, employee_id, timecard_date, 
                 reg_time, overtime, expenses,location_submitted, notes) 
@@ -116,6 +116,7 @@ class TimecardsManager {
                 let currData = rows[i];
                 let startDollar = (i*8)+1
                 const { job_id, employee_id, timecard_date, reg_time, overtime, expenses, location_submitted, notes } = currData;
+                if(!job_id || !employee_id || !timecard_date || !reg_time) throw new Error('Important details missing.')
                 let currStr = i < rows.length -1 ? `($${startDollar}, $${startDollar+1}, $${startDollar+2}, $${startDollar+3} ,$${startDollar+4}, $${startDollar+5},
                     $${startDollar+6}, $${startDollar+7}),` : `($${startDollar}, $${startDollar+1}, $${startDollar+2}, $${startDollar+3} ,$${startDollar+4}, $${startDollar+5},
                         $${startDollar+6}, $${startDollar+7}) returning *`;
@@ -123,7 +124,7 @@ class TimecardsManager {
                 args = [...args, job_id, employee_id, timecard_date, reg_time, overtime, expenses, location_submitted, notes];
                 
             }
-            console.log(query+valStr, args)
+          
             const result = await db.query(query+valStr, args);
            
 

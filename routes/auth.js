@@ -82,7 +82,7 @@ router.post("/password-forgotten-update/:token", async function (req, res, next)
         let { password } = req.body;
 
         let result = await EmployeeManager.updateForgottenPassword(token, password);
-       console.log('typeof result',result)
+     
       
         
         let encrypted = encrypt(result.session);
@@ -106,11 +106,17 @@ router.get("/whoami", async function (req, res, next) {
     try {
 
         if (req.cookies.sessionId) {
-
+            console.log(req.cookies)
+            return
+            throw new Error('Session error')
             let sessionId = req.cookies.sessionId;
             let split = sessionId.split(':.');
+            console.log('split',split, split.length)
+            if(split.length === 1) throw new Error('Session error')
+            console.log('err not cauvht')
             let decryptObj = { iv: split[0], encryptedData: split[1] }
             let decrypted = decrypt(decryptObj)
+            
             let userResult = await EmployeeManager.whoAmI(decrypted);
            
             return res.json(userResult);
@@ -118,7 +124,7 @@ router.get("/whoami", async function (req, res, next) {
         return res.json({ noUser: "unable to auth" });
     }
     catch (err) {
-
+        return
         return next(err);
     }
 });

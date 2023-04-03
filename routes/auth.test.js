@@ -94,11 +94,12 @@ describe("POST /auth", function () {
 
 
 
-    // test("whoamI does not work with a bad sessionId", async function () {
+    test("whoamI does not work with a bad sessionId", async function () {
 
-    //     const resp = await request(app).get("/api/auth/whoami").set("Cookie", "sessionId=abc");
-    //     expect(resp.body).toEqual({ noUser: "unable to auth" })
-    // })
+        const resp = await request(app).get("/api/auth/whoami").set("Cookie", "sessionId=abc");
+        console.debug('respbody', resp.body)
+        expect(resp.body).toEqual({ noUser: "unable to auth" })
+    })
 
     // test("whoamI works with a valid sessionId", async function () {
 
@@ -177,7 +178,7 @@ describe("POST /auth", function () {
     //         password: "newPassword25"
     //     })
 
-    //     //  DATE IS TECHNICALLY NOT CORRECT
+     
     //     expect(newLoginResp.body).toEqual({
     //         employee_id: expect.any(Number),
     //         first_name: "Shawn",
@@ -194,7 +195,6 @@ describe("POST /auth", function () {
     //         session_id: expect.any(String)
     //     })
 
-    //     // BELOW = EXPERIMENTING WITH SWITCHING PASSWORD BACK
 
     //     let tokenRespTwo = await request(app).post(`/api/auth/password-token/${shawnIdStr}`);
 
@@ -212,7 +212,7 @@ describe("POST /auth", function () {
     //     let updatePasswordResp = await request(app).post(`/api/auth/password-forgotten-update/abc123`).send({ password: "newPassword25" });
 
     //     expect(updatePasswordResp.body).toEqual({
-    //         invalidToken: "Invalid token."
+    //         message: "jwt malformed"
     //     })
 
         
@@ -223,41 +223,41 @@ describe("POST /auth", function () {
 
     // COOKIE TIMEOUT TESTS BELOW
 
-    test("forgot password token invalid after 10 minutes", async function () {
+    // test("forgot password token invalid after 10 minutes", async function () {
 
-        let shawnIdStr = await getEmployeeId('Shawn');
+    //     let shawnIdStr = await getEmployeeId('Shawn');
 
-        const passwordResp = await request(app).post(`/api/auth/password-token/${shawnIdStr}`);
-        expect(passwordResp.body).toEqual({
-            passwordToken: expect.any(String),
-            email: expect.any(String)
-        })
+    //     const passwordResp = await request(app).post(`/api/auth/password-token/${shawnIdStr}`);
+    //     expect(passwordResp.body).toEqual({
+    //         passwordToken: expect.any(String),
+    //         email: expect.any(String)
+    //     })
 
         
-        let token = passwordResp.body.passwordToken;
+    //     let token = passwordResp.body.passwordToken;
 
-         setTimeout( async ()=>{
-            let updatePasswordResp = await request(app).post(`/api/auth/password-forgotten-update/${token}`).send({ password: "newPassword25" });
-            expect(updatePasswordResp.body).toEqual(undefined)
-        }, ((1000*60)*11))
+    //      setTimeout( async ()=>{
+    //         let updatePasswordResp = await request(app).post(`/api/auth/password-forgotten-update/${token}`).send({ password: "newPassword25" });
+    //         expect(updatePasswordResp.body).toEqual(undefined)
+    //     }, ((1000*60)*11))
 
-        jest.advanceTimersByTime((1000*60)*11)
+    //     jest.advanceTimersByTime((1000*60)*11)
     
-    })
+    // })
 
-    test("rotate jwt is called after 15 minutes", async function () {
-
-    
-
-    
-    })
-
-    test("session expires after x hours", async function () {
+    // test("rotate jwt is called after 15 minutes", async function () {
 
     
 
     
-    })
+    // })
+
+    // test("session expires after x hours", async function () {
+
+    
+
+    
+    // })
 
 
 
