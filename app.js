@@ -26,17 +26,21 @@ app.use("/api/auth", authRoutes);
 
 // 404 Not Found handler * //
 
+
+
+
+
 app.use(function (req, res, next) {
     const err = new Error("Not Found");
     err.status = 404;
-    next(err);
+   return next(err);
 });
 
 // Generic error handler. *//
 
 app.use(function (err, req, res, next) {
-    console.log('generic',err)
-    res.status(err.status || 500).json({
+   
+   return res.status(err.status || 500).json({
         message: err.message
     });
 

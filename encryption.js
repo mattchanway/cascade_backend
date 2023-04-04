@@ -25,7 +25,7 @@ const CRYPTO_KEY = crypto.scryptSync(CRYPTO_PASSWORD, SALT, 32);
  function decrypt(text){
 
    try{
-      console.log('decrypt fn', text)
+   
     let iv = Buffer.from(text.iv, 'hex')
    let encryptedText = Buffer.from(text.encryptedData, 'hex');
   

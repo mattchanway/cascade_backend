@@ -16,8 +16,9 @@ const { decrypt, encrypt } = require("../encryption");
 async function authenticateSessionAndCheckJwt(req, res, next) {
         if(!req.cookies.sessionId) return next()
         let sessionTokenPayload;
-    try {
+    try {   
             let split = req.cookies.sessionId.split(':.');
+            console.log('middleware SPLIT', split, 'sessId', req.cookies.sessionId)
             let decryptObj = { iv: split[0], encryptedData: split[1] }
             let decrypted = decrypt(decryptObj)
             sessionTokenPayload = jwt.verify(decrypted, SECRET_KEY);

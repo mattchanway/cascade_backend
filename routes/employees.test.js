@@ -20,7 +20,9 @@ async function authenticateEmployeeAndGetSessionId(name, userPassword) {
         password: userPassword
     })
     let sessionId = authResp.header['set-cookie'][0].slice(10)
-    return sessionId;
+    console.log('in FN', sessionId, 'header', authResp.header)
+    return sessionId
+   
 }
 
 // async function getPositionsAndCerts(){

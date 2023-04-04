@@ -217,6 +217,7 @@ class EmployeeManager {
             let res = await db.query(`SELECT certification, email,
             employee_id, first_login, first_name, last_name, position,
             start_date FROM employees WHERE session_id = $1`, [sessionId]);
+          
             if (!res.rows.length) return { noUser: "unable to auth" }
             const user = res.rows[0];
             delete user.password;
