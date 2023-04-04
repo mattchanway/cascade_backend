@@ -22,7 +22,9 @@ router.post("/", async function (req, res, next) {
         let result = await EmployeeManager.authenticate(id, password);
 
         if (result !== false) {
-            let encrypted = encrypt(result.session_id);
+            // this is old, before authenticate returned an encrypted token
+            // let encrypted = encrypt(result.session_id);
+            let encrypted = result.session_id
             
             res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain:DOMAIN_URL, secure: true, httpOnly: true });
 
@@ -109,6 +111,7 @@ router.get("/whoami", async function (req, res, next) {
           
             let sessionId = req.cookies.sessionId;
             let split = sessionId.split(':.');
+            if(split.length <2) return res.json({ noUser: "unable to auth" });
            
             let decryptObj = { iv: split[0], encryptedData: split[1] }
             let decrypted = decrypt(decryptObj)
@@ -120,6 +123,7 @@ router.get("/whoami", async function (req, res, next) {
         return res.json({ noUser: "unable to auth" });
     }
     catch (err) {
+        err.message = 'Your session has expired. Please log out and try again.'
         return next(err);
     
        

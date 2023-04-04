@@ -2,6 +2,7 @@ const db = require("../db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { SECRET_KEY } = require("../config");
+const { encrypt, decrypt } = require('../encryption');
 
 
 class EmployeeManager {
@@ -145,7 +146,8 @@ class EmployeeManager {
                 // exp: Date.now() + ((1000 * 60) * 15)
                 exp: Math.floor(Date.now() / 1000) + (60 * 15)
             };
-            let jwtToken = jwt.sign(jwtPayload, SECRET_KEY);
+            let jwtTokenNoEncrypt = jwt.sign(jwtPayload, SECRET_KEY);
+            let jwtToken = encrypt(jwtTokenNoEncrypt);
             const res2 = await db.query(`UPDATE employees SET jwt_token =$1  WHERE employee_id =$2 returning jwt_token`, [jwtToken, employee_id]);
             if (!res2.rows.length) throw new Error('No user found for JWT rotation.')
             return res2.rows[0].jwt_token
@@ -177,8 +179,12 @@ class EmployeeManager {
                 exp: Math.floor(Date.now() / 1000) + (60 * 480)
             };
 
-            let jwtToken = jwt.sign(jwtPayload, SECRET_KEY);
-            let session = jwt.sign(sessionPayload, SECRET_KEY);
+            // ENCRYPT BOTH TOKENS
+            
+            let jwtTokenNoEncrypt = jwt.sign(jwtPayload, SECRET_KEY);
+            let sessionNoEncrypt = jwt.sign(sessionPayload, SECRET_KEY);
+            let jwtToken = encrypt(jwtTokenNoEncrypt);
+            let session = encrypt(sessionNoEncrypt)
             return { jwtToken, session }
         }
         catch (e) {
@@ -232,11 +238,11 @@ class EmployeeManager {
         }
     }
 
-    static async getJwt(sessionId) {
+    static async getJwt(employeeId) {
 
         try {
-            let res = await db.query(`SELECT jwt_token FROM employees WHERE session_id = $1`, [sessionId]);
-            if (!res.rows.length) throw new Error('No user found with that session ID.')
+            let res = await db.query(`SELECT jwt_token FROM employees WHERE employee_id = $1`, [employeeId]);
+            if (!res.rows.length) throw new Error('No user found.')
             const user = res.rows[0];
 
 

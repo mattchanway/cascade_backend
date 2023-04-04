@@ -21,16 +21,19 @@ async function authenticateSessionAndCheckJwt(req, res, next) {
             // console.log('middleware SPLIT', split, 'cookies', req.cookies)
             let decryptObj = { iv: split[0], encryptedData: split[1] }
             let decrypted = decrypt(decryptObj)
-            console.log('decrypt session id', decrypted)
+           
             sessionTokenPayload = jwt.verify(decrypted, SECRET_KEY);
-            const dbFetch = await EmployeeManager.getJwt(decrypted);
+            const dbFetchEncrypted = await EmployeeManager.getJwt(sessionTokenPayload.employee_id);
+            let splitJwt = dbFetchEncrypted.split(':.');
+            let decryptObjJwt = { iv: splitJwt[0], encryptedData: splitJwt[1] }
+            const dbFetch = decrypt(decryptObjJwt)
             const dbTokenPayload = jwt.verify(dbFetch, SECRET_KEY);
             res.locals.user = dbTokenPayload;
             console.log("NO ROTATION")
             return next();
         
     } catch (err) {
-        console.log('this is the error u looking for',err)
+    
         if(sessionTokenPayload && err.name === 'TokenExpiredError') res.locals.rotate = sessionTokenPayload
       
         return next();
