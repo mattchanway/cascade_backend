@@ -18,9 +18,10 @@ async function authenticateSessionAndCheckJwt(req, res, next) {
         let sessionTokenPayload;
     try {   
             let split = req.cookies.sessionId.split(':.');
-            console.log('middleware SPLIT', split, 'sessId', req.cookies.sessionId)
+            // console.log('middleware SPLIT', split, 'cookies', req.cookies)
             let decryptObj = { iv: split[0], encryptedData: split[1] }
             let decrypted = decrypt(decryptObj)
+            console.log('decrypt session id', decrypted)
             sessionTokenPayload = jwt.verify(decrypted, SECRET_KEY);
             const dbFetch = await EmployeeManager.getJwt(decrypted);
             const dbTokenPayload = jwt.verify(dbFetch, SECRET_KEY);
@@ -29,8 +30,9 @@ async function authenticateSessionAndCheckJwt(req, res, next) {
             return next();
         
     } catch (err) {
+        console.log('this is the error u looking for',err)
         if(sessionTokenPayload && err.name === 'TokenExpiredError') res.locals.rotate = sessionTokenPayload
-     
+      
         return next();
     }
 }
@@ -40,6 +42,7 @@ async function authenticateSessionAndCheckJwt(req, res, next) {
 async function rotateJwt(req, res, next){
 
     try{
+   
         if(res.locals.user) return next();
         
         else if(res.locals.rotate){
