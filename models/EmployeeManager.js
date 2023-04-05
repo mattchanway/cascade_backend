@@ -181,10 +181,10 @@ class EmployeeManager {
 
             // ENCRYPT BOTH TOKENS
             
-            let jwtTokenNoEncrypt = jwt.sign(jwtPayload, SECRET_KEY);
-            let sessionNoEncrypt = jwt.sign(sessionPayload, SECRET_KEY);
-            let jwtToken = encrypt(jwtTokenNoEncrypt);
-            let session = encrypt(sessionNoEncrypt)
+            let jwtToken = jwt.sign(jwtPayload, SECRET_KEY);
+            let session = jwt.sign(sessionPayload, SECRET_KEY);
+            // let jwtToken = encrypt(jwtTokenNoEncrypt);
+            // let session = encrypt(sessionNoEncrypt)
             return { jwtToken, session }
         }
         catch (e) {

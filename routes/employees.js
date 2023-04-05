@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const { authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn, ensureCorrectUserOrManager, ensureManager, ensureCorrectUser } = require("../middleware/middlewareAuth");
+const { authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureCorrectUserOrManager, ensureManager, ensureCorrectUser } = require("../middleware/middlewareAuth");
 const EmployeeManager = require("../models/EmployeeManager");
 
 
 // GET / get all employees
 
-router.get("/", authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn, ensureManager, async function (req, res, next) {
+router.get("/", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureManager, async function (req, res, next) {
 
     try {
         
@@ -14,7 +14,7 @@ router.get("/", authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn, ensur
         return res.json(result);
     }
     catch (err) {
-
+        console.log(err)
         return next(err);
     }
 });
@@ -33,7 +33,7 @@ router.get("/params", async function (req, res, next) {
     }
 });
 
-router.get("/:id", authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn, ensureCorrectUserOrManager, async function (req, res, next) {
+router.get("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureCorrectUserOrManager, async function (req, res, next) {
 
     try {
         let id = req.params.id;
@@ -49,7 +49,7 @@ router.get("/:id", authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn, en
     }
 });
 
-router.post("/", authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn, ensureManager, async function (req, res, next) {
+router.post("/", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureManager, async function (req, res, next) {
 
     try {
         
@@ -62,7 +62,7 @@ router.post("/", authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn, ensu
     }
 });
 
-router.put("/:id", authenticateSessionAndCheckJwt, rotateJwt, ensureManager, async function (req, res, next) {
+router.put("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureManager, async function (req, res, next) {
 
     try {
         console.log('route', req.params)
@@ -77,7 +77,7 @@ router.put("/:id", authenticateSessionAndCheckJwt, rotateJwt, ensureManager, asy
     }
 });
 
-router.patch("/:id", authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
+router.patch("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
 
     try {
 
@@ -93,7 +93,7 @@ router.patch("/:id", authenticateSessionAndCheckJwt, rotateJwt, ensureLoggedIn, 
     }
 });
 
-router.delete("/:id", authenticateSessionAndCheckJwt, rotateJwt, ensureManager, async function (req, res, next) {
+router.delete("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureManager, async function (req, res, next) {
 
     try {
         let id = req.params.id;

@@ -24,9 +24,10 @@ router.post("/", async function (req, res, next) {
         if (result !== false) {
             // this is old, before authenticate returned an encrypted token
             // let encrypted = encrypt(result.session_id);
-            let encrypted = result.session_id
-            
+            let encrypted = encrypt(result.session_id)
+            let encryptedJwt = encrypt(result.jwt_token)
             res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain:DOMAIN_URL, secure: true, httpOnly: true });
+            res.cookie('jwt', encryptedJwt, { maxAge: 1000*15, domain:DOMAIN_URL, secure: true, httpOnly: true });
 
         }
 
@@ -47,6 +48,7 @@ router.post("/logout", async function (req, res, next) {
         // on every API request, the database must check the JWT
         // the whoAmI API route can check the session, if it's not expired, say 1 hour, browsing can continue
         res.clearCookie("sessionId",{ domain: DOMAIN_URL, secure: true, httpOnly: true });
+        res.clearCookie("jwt",{ domain: DOMAIN_URL, secure: true, httpOnly: true });
         return res.end();
     }
     catch (err) {
@@ -117,6 +119,7 @@ router.get("/whoami", async function (req, res, next) {
             let decrypted = decrypt(decryptObj)
          
             let userResult = await EmployeeManager.whoAmI(decrypted);
+         
            
             return res.json(userResult);
         }

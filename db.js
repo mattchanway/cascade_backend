@@ -15,7 +15,8 @@ let db = (process.env.NODE_ENV === "production") ? new Client({
   user: process.env.RDS_USERNAME,
   password: process.env.RDS_PASSWORD,
   port: process.env.RDS_PORT,
-  connectionString: process.env.DATABASE_URL
+  connectionString: process.env.DATABASE_URL,
+  ssl: true
 }) : new Client({
   connectionString: getDatabaseUri()
 });
