@@ -22,15 +22,16 @@ router.post("/", async function (req, res, next) {
         const { id, password } = req.body;
 
         let result = await EmployeeManager.authenticate(id, password);
+        console.log(result)
 
         if (result !== false) {
             // this is old, before authenticate returned an encrypted token
             // let encrypted = encrypt(result.session_id);
             let encrypted = encrypt(result.session_id)
-            let encryptedJwt = encrypt(result.jwt_token)
+            let encryptedJwt = encrypt(result.jwtToken)
             res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain: DOMAIN_URL, secure: true, httpOnly: true });
             res.cookie('jwt', encryptedJwt, { maxAge: ((1000 * 60) * 15), domain: DOMAIN_URL, secure: true, httpOnly: true });
-
+            delete result.jwtToken
         }
 
         return res.json(result);

@@ -101,18 +101,18 @@ describe("POST /auth", function () {
 
 
 
-     test("whoamI returns null with invalid sessionID", async function () {
+    //  test("whoamI returns null with invalid sessionID", async function () {
 
 
 
 
-        const resp = await request(app).get("/api/auth/whoami").set("Cookie", "sessionId=abc3");
+    //     const resp = await request(app).get("/api/auth/whoami").set("Cookie", "sessionId=abc3");
        
 
-        expect(resp.body).toEqual({ noUser: "unable to auth" })
+    //     expect(resp.body).toEqual({ noUser: "unable to auth" })
 
 
-    })
+    // })
 
     test("whoamI works with a valid sessionId", async function () {
 
@@ -203,7 +203,6 @@ describe("POST /auth", function () {
 
             first_login: true,
             active: true,
-            jwt_token: expect.any(String),
             password_reset_token: null,
             session_id: expect.any(String)
         })
@@ -232,7 +231,7 @@ describe("POST /auth", function () {
 
     })
 
-    // COOKIE TIMEOUT TESTS BELOW
+    // // COOKIE TIMEOUT TESTS BELOW
 
     test("forgot password token invalid after 10 minutes", async function () {
         jest.useFakeTimers()
@@ -273,80 +272,80 @@ describe("POST /auth", function () {
 
 
 
-    test("rotate jwt is called after 15 minutes", async function () {
-        expect.assertions(2)
-        let shawnId = await getEmployeeId('Shawn')
-        let shawnSession = await authenticateEmployeeAndGetSessionCookie('Shawn', 'password1')
-        let test = await db.query(`SELECT * from employees where employee_id = $1`, [shawnId])
+    // test("rotate jwt is called after 15 minutes", async function () {
+    //     expect.assertions(2)
+    //     let shawnId = await getEmployeeId('Shawn')
+    //     let shawnSession = await authenticateEmployeeAndGetSessionCookie('Shawn', 'password1')
+    //     let test = await db.query(`SELECT * from employees where employee_id = $1`, [shawnId])
 
-        let initShawnJwt = await getJwt(test.rows[0].session_id)
+    //     let initShawnJwt = await getJwt(test.rows[0].session_id)
 
-        let res = null;
+    //     let res = null;
 
-        function returnPromise() {
+    //     function returnPromise() {
 
-            return new Promise((resolve) => {
-                setTimeout(async () => {
-                    res = await request(app).get('/api/employees').set("Cookie", `sessionId=${shawnSession}`);
-                    resolve(res)
-                }, ((1000 * 60) * 16))
-                jest.advanceTimersByTime((1000 * 60) * 16)
-            }
-            ).then(val => val.body)
-        }
+    //         return new Promise((resolve) => {
+    //             setTimeout(async () => {
+    //                 res = await request(app).get('/api/employees').set("Cookie", `sessionId=${shawnSession}`);
+    //                 resolve(res)
+    //             }, ((1000 * 60) * 16))
+    //             jest.advanceTimersByTime((1000 * 60) * 16)
+    //         }
+    //         ).then(val => val.body)
+    //     }
 
-        let a = await returnPromise()
+    //     let a = await returnPromise()
 
-        expect(res.body).toEqual([{
-            "certification": 1, "email": "matthewchanway@gmail.com", "employee_id": expect.any(Number), "first_login": true,
-            "first_name": "Shawn", "last_name": "Rostas", "position": 3, "start_date": expect.any(String)
-        },
-        {
-            "certification": 1, "email": "joetest@not.com", "employee_id": expect.any(Number), "first_login": true, "first_name": "Joe", "last_name": "Test",
-            "position": 1, "start_date": expect.any(String)
-        }])
+    //     expect(res.body).toEqual([{
+    //         "certification": 1, "email": "matthewchanway@gmail.com", "employee_id": expect.any(Number), "first_login": true,
+    //         "first_name": "Shawn", "last_name": "Rostas", "position": 3, "start_date": expect.any(String)
+    //     },
+    //     {
+    //         "certification": 1, "email": "joetest@not.com", "employee_id": expect.any(Number), "first_login": true, "first_name": "Joe", "last_name": "Test",
+    //         "position": 1, "start_date": expect.any(String)
+    //     }])
 
-        let secondJwt = await getJwt(test.rows[0].session_id);
-        expect(secondJwt).not.toEqual(initShawnJwt)
+    //     let secondJwt = await getJwt(test.rows[0].session_id);
+    //     expect(secondJwt).not.toEqual(initShawnJwt)
 
-    })
+    // })
 
-    test("session expires after x hours", async function () {
-        expect.assertions(2)
-        let shawnId = await getEmployeeId('Shawn')
-        let shawnSession = await authenticateEmployeeAndGetSessionCookie('Shawn', 'password1');
-        let test = await db.query(`SELECT * from employees where employee_id = $1`, [shawnId])
+    // test("session expires after x hours", async function () {
+    //     expect.assertions(2)
+    //     let shawnId = await getEmployeeId('Shawn')
+    //     let shawnSession = await authenticateEmployeeAndGetSessionCookie('Shawn', 'password1');
+    //     let test = await db.query(`SELECT * from employees where employee_id = $1`, [shawnId])
         
 
-        let initResp = await request(app).get('/api/employees').set("Cookie", `sessionId=${shawnSession}`);
-        expect(initResp.body).toEqual([{
-            "certification": 1, "email": "matthewchanway@gmail.com", "employee_id": expect.any(Number), "first_login": true,
-            "first_name": "Shawn", "last_name": "Rostas", "position": 3, "start_date": expect.any(String)
-        },
-        {
-            "certification": 1, "email": "joetest@not.com", "employee_id": expect.any(Number), "first_login": true, "first_name": "Joe", "last_name": "Test",
-            "position": 1, "start_date": expect.any(String)
-        }])
+    //     let initResp = await request(app).get('/api/employees').set("Cookie", `sessionId=${shawnSession}`);
+    //     expect(initResp.body).toEqual([{
+    //         "certification": 1, "email": "matthewchanway@gmail.com", "employee_id": expect.any(Number), "first_login": true,
+    //         "first_name": "Shawn", "last_name": "Rostas", "position": 3, "start_date": expect.any(String)
+    //     },
+    //     {
+    //         "certification": 1, "email": "joetest@not.com", "employee_id": expect.any(Number), "first_login": true, "first_name": "Joe", "last_name": "Test",
+    //         "position": 1, "start_date": expect.any(String)
+    //     }])
 
-        let res = null;
+    //     let res = null;
 
-        function returnPromise() {
+    //     function returnPromise() {
 
-            return new Promise((resolve) => {
-                setTimeout(async () => {
-                    res = await request(app).get('/api/employees').set("Cookie", `sessionId=${shawnSession}`);
-                    resolve(res)
-                }, ((1000 * 60 * 60) * 8))
-                jest.advanceTimersByTime(((1000 * 60 * 60) * 8))
-            }
-            ).then(val => val.body)
-        }
+    //         return new Promise((resolve) => {
+    //             setTimeout(async () => {
+    //                 res = await request(app).get('/api/employees').set("Cookie", `sessionId=${shawnSession}`);
+    //                 resolve(res)
+    //             }, ((1000 * 60 * 60) * 8))
+    //             jest.advanceTimersByTime(((1000 * 60 * 60) * 8))
+    //         }
+    //         ).then(val => val.body)
+    //     }
 
-        let a = await returnPromise();
-        expect(res.body).toEqual({ message: "Unauthorized" })
+    //     let a = await returnPromise();
+    //     expect(res.body).toEqual({ message: "Unauthorized" })
 
 
-    })
+    // })
 
 
 

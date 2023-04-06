@@ -38,7 +38,6 @@ CREATE TABLE employees (
     position int NOT NULL references positions,
     certification int NOT NULL references certifications,
     start_date DATE NOT NULL,
-    jwt_token VARCHAR,
     session_id VARCHAR,
     password_reset_token VARCHAR,
     first_login BOOLEAN default true);

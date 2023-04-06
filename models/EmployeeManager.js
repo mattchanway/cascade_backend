@@ -107,8 +107,8 @@ class EmployeeManager {
 
                 if (isValid) {
                     let { jwtToken, session } = await this.createNewTokens(id, user.position);
-                    let fin = await this.updateDatabaseTokens(id, jwtToken, session);
-                    return fin;
+                    let fin = await this.updateDatabaseTokens(id, session);
+                    return {...fin, jwtToken};
                 }
             }
             return false;
@@ -119,11 +119,11 @@ class EmployeeManager {
         }
     }
 
-    static async updateDatabaseTokens(id, jwt, session) {
+    static async updateDatabaseTokens(id, session) {
 
         try {
-            const res2 = await db.query(`UPDATE employees SET jwt_token =$1, session_id = $2 WHERE employee_id =$3 returning *`,
-                [jwt, session, id]);
+            const res2 = await db.query(`UPDATE employees SET session_id = $1 WHERE employee_id =$2 returning *`,
+                [session, id]);
             const loggedInUser = res2.rows[0]
 
             delete loggedInUser.password;
@@ -302,7 +302,7 @@ class EmployeeManager {
 
             let user = userQuery.rows[0]
             let { jwtToken, session } = await this.createNewTokens(user.employee_id, user.position)
-            let updateUser = await this.updateDatabaseTokens(user.employee_id, jwtToken, session);
+            let updateUser = await this.updateDatabaseTokens(user.employee_id, session);
             delete user.password;
             return { user, session };
         }
