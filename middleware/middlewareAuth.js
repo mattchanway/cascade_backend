@@ -19,7 +19,9 @@ const DOMAIN_URL = process.env.NODE_ENV === 'production' ? '.cascademetaldesign.
 async function authenticateSessionAndCheckJwt(req, res, next) {
     if (!req.cookies.jwt) return next()
     try {
-        let encryptedJwtSplit = req.cookies.jwt.split(':.');
+        let testDecode = decodeURIComponent(req.cookies.jwt);
+
+        let encryptedJwtSplit = testDecode.split(':.');
         let jwtObj = { iv: encryptedJwtSplit[0], encryptedData: encryptedJwtSplit[1] }
         let decryptedJwt = decrypt(jwtObj)
         const dbTokenPayload = jwt.verify(decryptedJwt, SECRET_KEY);
@@ -39,7 +41,8 @@ async function rotateSessionAndJwt(req, res, next) {
     if (!req.cookies.sessionId || res.locals.user) return next();
     try {
         console.log('ROTATING')
-        let split = req.cookies.sessionId.split(':.');
+        let testDecode = decodeURIComponent(req.cookies.sessionId);
+        let split = testDecode.split(':.');
         let decrypted = decrypt({ iv: split[0], encryptedData: split[1] })
         let { employee_id, position } = jwt.verify(decrypted, SECRET_KEY);
         let { jwtToken, session } = await EmployeeManager.createNewTokens(employee_id, position);
