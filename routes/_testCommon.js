@@ -36,11 +36,11 @@ async function commonBeforeAll() {
   await db.query(`UPDATE certifications SET certification_id = 1 WHERE certification_name = 'None'`)
 
 
-  await db.query(`INSERT INTO employees(password,first_name, last_name, email,position, certification, start_date, jwt_token, session_id, password_reset_token, first_login) 
-    VALUES($1,'Shawn','Rostas', 'matthewchanway@gmail.com',3, 1,$2,null,null,null,true)`, [p1Hash, initStr])
+  await db.query(`INSERT INTO employees(password,first_name, last_name, email,position, certification, start_date, session_id, password_reset_token, first_login) 
+    VALUES($1,'Shawn','Rostas', 'matthewchanway@gmail.com',3, 1,$2,null,null,true)`, [p1Hash, initStr])
 
-  await db.query(`INSERT INTO employees(password,first_name, last_name, email,position, certification, start_date, jwt_token, session_id, password_reset_token, first_login) 
-    VALUES($1,'Joe','Test', 'joetest@not.com',1, 1,$2,null,null,null,true)`, [p1Hash, initStr])
+  await db.query(`INSERT INTO employees(password,first_name, last_name, email,position, certification, start_date, session_id, password_reset_token, first_login) 
+    VALUES($1,'Joe','Test', 'joetest@not.com',1, 1,$2,null,null,true)`, [p1Hash, initStr])
 
   await db.query(`INSERT INTO jobs(job_id, job_name, job_address_street_line1, job_address_street_unit, job_address_street_city, job_description, shop_docs_link)
     VALUES('400-22044', 'Dr. Oonchi', '1845 Marine Drive', null, 'West Vancouver', 'Doctors office','https://www.dropbox.com/sh/diwnsimhvkiy7hs/AADn3VkGDe8H4YwKqYqzJXj7a?dl=0'),

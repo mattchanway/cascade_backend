@@ -24,7 +24,7 @@ async function authenticateEmployeeAndGetSessionCookie(name, userPassword) {
     })
     let sessionId = authResp.header['set-cookie'][0].slice(10)
     let test = authResp.body;
-    console.log('fn', test)
+    console.log('fn', authResp.header)
     let r = sessionId.split(';')
     return r[0]
     return sessionId
@@ -68,7 +68,6 @@ describe("POST /auth", function () {
             start_date: expect.any(String),
             first_login: true,
             active: true,
-            jwt_token: expect.any(String),
             password_reset_token: null,
             session_id: expect.any(String)
         })
@@ -101,19 +100,6 @@ describe("POST /auth", function () {
 
 
 
-    // test("whoamI does not work with a bad sessionId", async function () {
-
-    // THIS ONLY TESTS THAT A FAKE/GARBLED SESSION ID WILL RETURN AN ERROR. IT HAS BEEN MANUALLY TESTED AND SHOWN TO WORK
-
-
-    //     const resp = await request(app).get("/api/auth/whoami").set("Cookie", "sessionId=abc");
-    //     console.debug(resp)
-
-    //     expect(resp.body).toEqual({ message: "Session error" })
-
-
-
-    // })
 
      test("whoamI returns null with invalid sessionID", async function () {
 

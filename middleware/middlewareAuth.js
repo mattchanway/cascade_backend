@@ -17,7 +17,7 @@ const DOMAIN_URL = process.env.NODE_ENV === 'production' ? '.cascademetaldesign.
 
 
 async function authenticateSessionAndCheckJwt(req, res, next) {
-    if (req.cookies.jwt) return next()
+    if (!req.cookies.jwt) return next()
     try {
         let encryptedJwtSplit = req.cookies.jwt.split(':.');
         let jwtObj = { iv: encryptedJwtSplit[0], encryptedData: encryptedJwtSplit[1] }

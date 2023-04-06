@@ -137,12 +137,9 @@ describe("Employee Manager", function () {
         let shawnId = await getEmployeeId('Shawn');
 
         let initShawn = await db.query(`select * from employees where employee_id = $1`, [+shawnId]);
-        console.debug('hereee', initShawn.rows)
-        expect(initShawn.rows[0].jwt_token).toEqual(null)
         expect(initShawn.rows[0].session_id).toEqual(null)
         await EmployeeManager.authenticate(shawnId, 'password1')
         let secondShawn = await db.query(`select * from employees where employee_id = $1`, [+shawnId]);
-        expect(secondShawn.rows[0].jwt_token).toEqual(expect.any(String))
         expect(secondShawn.rows[0].session_id).toEqual(expect.any(String))
     })
 
@@ -153,42 +150,8 @@ describe("Employee Manager", function () {
 
     })
 
-    test("rotateJwtTokens - valid data", async function () {
+ 
 
-        let shawnId = await getEmployeeId('Shawn');
-        let init = await EmployeeManager.authenticate(+shawnId, 'password1')
-        let session = init.session_id
-       
-        let firstJwt = await EmployeeManager.getJwt(session)
-
-
-        setTimeout(async () => {
-          
-            let secondJwt = await EmployeeManager.rotateJwtToken(+shawnId, 3);
-            expect(typeof (firstJwt)).toEqual('string')
-            expect(typeof (secondJwt)).toEqual('string')
-            expect(firstJwt).not.toEqual(secondJwt)
-
-
-        }, 3000)
-        jest.advanceTimersByTime(3000)
-
-
-    })
-
-    test("rotateJwtTokens - invalid data", async function () {
-        expect.assertions(1)
-
-        try {
-            await EmployeeManager.rotateJwtToken(0, 3);
-        }
-        catch (e) {
-            expect(e).toEqual(new Error('No user found for JWT rotation.'))
-
-        }
-
-
-    })
 
     test("createPasswordToken - valid data", async function () {
 
@@ -216,13 +179,12 @@ describe("Employee Manager", function () {
     })
 
     test("whoAmI - valid data", async function () {
+        let shawnId = await getEmployeeId('Shawn')
 
 
-        let query = await db.query(`UPDATE employees SET session_id = $2 WHERE first_name = $1 returning session_id`, ['Shawn', 'abc'])
-        let sessionId = query.rows[0].session_id
-        let resp = await EmployeeManager.whoAmI(sessionId);
+        let resp = await EmployeeManager.whoAmI(shawnId);
         expect(resp).toEqual({
-            "certification": 1, "email": "matthewchanway@gmail.com", "employee_id": expect.any(Number), "first_login": true,
+            "certification": 1, "email": "matthewchanway@gmail.com", "employee_id": +shawnId, "first_login": true,
             "first_name": "Shawn", "last_name": "Rostas", "position": 3, "start_date": expect.any(Date)
         })
 
@@ -233,30 +195,7 @@ describe("Employee Manager", function () {
         expect(resp).toEqual({ noUser: "unable to auth" })
     })
 
-    test("getJwt - valid data", async function () {
-        await db.query(`UPDATE employees SET session_id = $2, jwt_token =$3 WHERE first_name = $1 returning session_id`, ['Shawn', 'abc', '123'])
-        let resp = await EmployeeManager.getJwt('abc')
-        expect(resp).toEqual('123')
 
-
-    })
-
-    test("getJwt - invalid data", async function () {
-
-        expect.assertions(1)
-
-        try {
-            // await db.query(`UPDATE employees SET session_id = $2, jwt_token =$3 WHERE first_name = $1 returning session_id`, ['Shawn', 'abc', '123'])
-            let resp = await EmployeeManager.getJwt('0')
-        }
-        catch (e) {
-            expect(e).toEqual(new Error('No user found with that session ID.'))
-
-        }
-
-
-
-    })
 
     test("updateForgottenPassword - valid data", async function () {
         let shawnId = await getEmployeeId('Shawn');

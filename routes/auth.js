@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const EmployeeManager = require("../models/EmployeeManager");
 const jwt = require("jsonwebtoken");
-const { authenticateJWT, ensureLoggedIn } = require("../middleware/middlewareAuth");
+const { authenticateSessionAndCheckJwt,
+    rotateSessionAndJwt,
+    ensureLoggedIn } = require("../middleware/middlewareAuth");
 const { SECRET_KEY } = require("../config");
 const { encrypt, decrypt } = require('../encryption');
 const DOMAIN_URL = process.env.NODE_ENV === 'production' ? '.cascademetaldesign.work' : 'localhost'
@@ -16,9 +18,9 @@ router.post("/", async function (req, res, next) {
         // JWT and SESSION are stored in database, session is sent to HTTP ONLY COOKIE
         // on every API request, the database must check the JWT
         // the whoAmI API route can check the session, if it's not expired, say 1 hour, browsing can continue
-        
+
         const { id, password } = req.body;
-      
+
         let result = await EmployeeManager.authenticate(id, password);
 
         if (result !== false) {
@@ -26,8 +28,8 @@ router.post("/", async function (req, res, next) {
             // let encrypted = encrypt(result.session_id);
             let encrypted = encrypt(result.session_id)
             let encryptedJwt = encrypt(result.jwt_token)
-            res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain:DOMAIN_URL, secure: true, httpOnly: true });
-            res.cookie('jwt', encryptedJwt, { maxAge: 1000*15, domain:DOMAIN_URL, secure: true, httpOnly: true });
+            res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain: DOMAIN_URL, secure: true, httpOnly: true });
+            res.cookie('jwt', encryptedJwt, { maxAge: ((1000 * 60) * 15), domain: DOMAIN_URL, secure: true, httpOnly: true });
 
         }
 
@@ -47,8 +49,8 @@ router.post("/logout", async function (req, res, next) {
         // JWT and SESSION are stored in database, session is sent to HTTP ONLY COOKIE
         // on every API request, the database must check the JWT
         // the whoAmI API route can check the session, if it's not expired, say 1 hour, browsing can continue
-        res.clearCookie("sessionId",{ domain: DOMAIN_URL, secure: true, httpOnly: true });
-        res.clearCookie("jwt",{ domain: DOMAIN_URL, secure: true, httpOnly: true });
+        res.clearCookie("sessionId", { domain: DOMAIN_URL, secure: true, httpOnly: true });
+        res.clearCookie("jwt", { domain: DOMAIN_URL, secure: true, httpOnly: true });
         return res.end();
     }
     catch (err) {
@@ -86,18 +88,18 @@ router.post("/password-forgotten-update/:token", async function (req, res, next)
         let { password } = req.body;
 
         let result = await EmployeeManager.updateForgottenPassword(token, password);
-     
-      
-        
+
+
+
         let encrypted = encrypt(result.session);
-        res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain:DOMAIN_URL, secure: true, httpOnly: true });
-        
+        res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain: DOMAIN_URL, secure: true, httpOnly: true });
+
 
         return res.json(result.user);
 
     }
     catch (e) {
-      
+
         return next(e);
     }
 })
@@ -105,33 +107,29 @@ router.post("/password-forgotten-update/:token", async function (req, res, next)
 
 
 
-router.get("/whoami", async function (req, res, next) {
+router.get("/whoami", authenticateSessionAndCheckJwt,
+    rotateSessionAndJwt,
+    ensureLoggedIn, async function (req, res, next) {
 
-    try {
-       
-        if (req.cookies.sessionId) {
-          
-            let sessionId = req.cookies.sessionId;
-            let split = sessionId.split(':.');
-            if(split.length <2) return res.json({ noUser: "unable to auth" });
-           
-            let decryptObj = { iv: split[0], encryptedData: split[1] }
-            let decrypted = decrypt(decryptObj)
-         
-            let userResult = await EmployeeManager.whoAmI(decrypted);
-         
-           
-            return res.json(userResult);
+        try {
+
+            if (res.locals && res.locals.user) {
+
+
+                let userResult = await EmployeeManager.whoAmI(res.locals.user.employee_id);
+
+
+                return res.json(userResult);
+            }
+            return res.json({ noUser: "unable to auth" });
         }
-        return res.json({ noUser: "unable to auth" });
-    }
-    catch (err) {
-        err.message = 'Your session has expired. Please log out and try again.'
-        return next(err);
-    
-       
-    }
-});
+        catch (err) {
+            err.message = 'Your session has expired. Please log out and try again.'
+            return next(err);
+
+
+        }
+    });
 
 
 module.exports = router;

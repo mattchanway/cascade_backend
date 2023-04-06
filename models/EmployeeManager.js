@@ -136,32 +136,29 @@ class EmployeeManager {
 
     }
 
-    static async rotateJwtToken(employee_id, position) {
+    // static async rotateJwtToken(employee_id, position) {
 
-        try {
+    //     try {
 
-            let jwtPayload = {
-                employee_id: employee_id,
-                position: position,
-                // exp: Date.now() + ((1000 * 60) * 15)
-                exp: Math.floor(Date.now() / 1000) + (60 * 15)
-            };
-            let jwtTokenNoEncrypt = jwt.sign(jwtPayload, SECRET_KEY);
-            let jwtToken = encrypt(jwtTokenNoEncrypt);
-            const res2 = await db.query(`UPDATE employees SET jwt_token =$1  WHERE employee_id =$2 returning jwt_token`, [jwtToken, employee_id]);
-            if (!res2.rows.length) throw new Error('No user found for JWT rotation.')
-            return res2.rows[0].jwt_token
+    //         let jwtPayload = {
+    //             employee_id: employee_id,
+    //             position: position,
+    //             // exp: Date.now() + ((1000 * 60) * 15)
+    //             exp: Math.floor(Date.now() / 1000) + (60 * 15)
+    //         };
+    //         let jwtTokenNoEncrypt = jwt.sign(jwtPayload, SECRET_KEY);
+    //         let jwtToken = encrypt(jwtTokenNoEncrypt);
+    //         const res2 = await db.query(`UPDATE employees SET jwt_token =$1  WHERE employee_id =$2 returning jwt_token`, [jwtToken, employee_id]);
+    //         if (!res2.rows.length) throw new Error('No user found for JWT rotation.')
+    //         return res2.rows[0].jwt_token
 
-        }
+    //     }
+    //     catch (e) {
 
-        catch (e) {
+    //         throw e;
+    //     }
 
-            throw e;
-        }
-
-
-
-    }
+    // }
 
     static async createNewTokens(employee_id, position) {
 
@@ -217,12 +214,12 @@ class EmployeeManager {
     }
 
 
-    static async whoAmI(sessionId) {
+    static async whoAmI(employeeId) {
 
         try {
             let res = await db.query(`SELECT certification, email,
             employee_id, first_login, first_name, last_name, position,
-            start_date FROM employees WHERE session_id = $1`, [sessionId]);
+            start_date FROM employees WHERE employee_id = $1`, [employeeId]);
           
             if (!res.rows.length) return { noUser: "unable to auth" }
             const user = res.rows[0];
@@ -238,21 +235,21 @@ class EmployeeManager {
         }
     }
 
-    static async getJwt(employeeId) {
+    // static async getJwt(employeeId) {
 
-        try {
-            let res = await db.query(`SELECT jwt_token FROM employees WHERE employee_id = $1`, [employeeId]);
-            if (!res.rows.length) throw new Error('No user found.')
-            const user = res.rows[0];
+    //     try {
+    //         let res = await db.query(`SELECT jwt_token FROM employees WHERE employee_id = $1`, [employeeId]);
+    //         if (!res.rows.length) throw new Error('No user found.')
+    //         const user = res.rows[0];
 
 
-            return user.jwt_token;
-        }
-        catch (e) {
+    //         return user.jwt_token;
+    //     }
+    //     catch (e) {
 
-            throw e;
-        }
-    }
+    //         throw e;
+    //     }
+    // }
 
     static async verifyPasswordToken(employee_id, token) {
 
