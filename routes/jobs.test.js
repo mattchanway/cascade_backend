@@ -158,7 +158,7 @@ describe("Jobs", function () {
 
         })
 
-        console.debug('in the main test',resp.header)
+        console.debug('in the main test',resp.res)
         // let returnedJwt = getJwtHeader(resp)
 
         // expect(returnedJwt).toEqual(jwt)

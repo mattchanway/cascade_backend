@@ -38,7 +38,7 @@ router.get("/:id",authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLog
 router.post("/", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureManager, async function (req, res, next) {
 
     try {
-       
+        console.log(res.locals)
         let result = await JobsManager.addJob(req.body);
         return res.json(result);
     }
