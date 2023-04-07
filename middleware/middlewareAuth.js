@@ -17,6 +17,7 @@ const DOMAIN_URL = process.env.NODE_ENV === 'production' ? '.cascademetaldesign.
 
 
 async function authenticateSessionAndCheckJwt(req, res, next) {
+    console.log('MIDDLEWRE',req.cookies)
     if (!req.cookies.jwt) return next()
     try {
         let testDecode = decodeURIComponent(req.cookies.jwt);

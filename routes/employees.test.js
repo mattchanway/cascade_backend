@@ -77,7 +77,7 @@ describe("Employees", function () {
         let mattSessionId = mattSession.session;
         let mattJwt = mattSession.jwt
 
-        let mattUnauthView = await request(app).get(`/api/employees/${shawnId}`).set("Cookie", [`sessionId=${mattSessionId}`, `jwt=${mattJwt}`])
+        let mattUnauthView = await request(app).get(`/api/employees/${shawnId}`).set("Cookie", [`sessionId=${mattSessionId}`, `jwt=${mattJwt}`].join(";"))
 
         expect(mattUnauthView.body).toEqual({
             message: "Unauthorized, must be manager or same user"
@@ -151,9 +151,11 @@ describe("Employees", function () {
     test("Employee cannot edit", async function () {
 
         let {session, jwt} = await authenticateEmployeeAndGetSessionCookie('Shawn', 'password1');
-        await request(app).post("/api/employees").set("Cookie", [`sessionId=${session}`, `jwt=${jwt}`]).send({
+       let r = await request(app).post("/api/employees").set("Cookie", [`sessionId=${session}`, `jwt=${jwt}`]).send({
             first_name: 'Matt', last_name: 'Chanway', email: 'notmattchanway@gmail.com', position: 1, certification: 1, start_date: '2023-01-01'
         })
+        console.debug('looking at headers', jwt, 'r',r.header)
+
         let mattId = await getEmployeeId('Matt')
         let sessionMatt = await authenticateEmployeeAndGetSessionCookie('Matt', 'Chanway123')
         let sessionIdMatt = sessionMatt.session
