@@ -17,8 +17,8 @@ const DOMAIN_URL = process.env.NODE_ENV === 'production' ? '.cascademetaldesign.
 
 
 async function authenticateSessionAndCheckJwt(req, res, next) {
-    console.log('MIDDLEWRE',req.cookies)
-    if (!req.cookies.jwt) return next()
+    console.log('middleware', req.cookies)
+    if (!req.cookies || !req.cookies.jwt) return next()
     try {
         let testDecode = decodeURIComponent(req.cookies.jwt);
 
@@ -31,7 +31,7 @@ async function authenticateSessionAndCheckJwt(req, res, next) {
         return next();
 
     } catch (err) {
-        return next();
+        return next(err);
     }
 }
 
@@ -39,9 +39,9 @@ async function authenticateSessionAndCheckJwt(req, res, next) {
 
 async function rotateSessionAndJwt(req, res, next) {
 
-    if (!req.cookies.sessionId || res.locals.user) return next();
+    if (!req.cookies || !req.cookies.sessionId || res.locals.user) return next();
     try {
-        console.log('ROTATING', req.cookies)
+        console.log('ROTATING')
         let testDecode = decodeURIComponent(req.cookies.sessionId);
         let split = testDecode.split(':.');
         let decrypted = decrypt({ iv: split[0], encryptedData: split[1] })
@@ -51,42 +51,25 @@ async function rotateSessionAndJwt(req, res, next) {
         let encrypted = encrypt(session)
         let encryptedJwt = encrypt(jwtToken)
         res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain: DOMAIN_URL, secure: true, httpOnly: true });
+        
         res.cookie('jwt', encryptedJwt, { maxAge: ((1000 * 60) * 15), domain: DOMAIN_URL, secure: true, httpOnly: true });
+
         let payload = jwt.verify(jwtToken, SECRET_KEY)
         res.locals.user = payload
-        console.log('header check in rotate middleware', req.headers, 'cookies', req.cookies, 'res', res)
+      
         return next();
 
     }
     catch (e) {
-        console.log('rotatin error', e)
-        return next()
+        console.log('rotation error', e)
+        let error = new Error()
+        error.message = e.message
+        error.status = e.status
+        return next(error)
     }
 
 }
 
-
-// async function rotateJwt(req, res, next) {
-
-//     try {
-
-//         if (res.locals.user) return next();
-
-//         else if (res.locals.rotate) {
-//             console.log('new middleware rotation')
-//             const jwtToken = await EmployeeManager.rotateJwtToken(res.locals.rotate.employee_id, res.locals.rotate.position);
-//             res.locals.user = jwt.verify(jwtToken, SECRET_KEY);
-//             return next();
-//         }
-
-//         return next()
-//     }
-
-//     catch (e) {
-//         return next(e)
-//     }
-
-// }
 
 
 /** Middleware to use when they must be logged in.
