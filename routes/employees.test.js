@@ -28,24 +28,6 @@ async function authenticateEmployeeAndGetSessionCookie(name, userPassword) {
     return {session, jwt}
 }
 
-// async function getPositionsAndCerts(){
-
-//     let resp = await request(app).get("/api/employees/params");
-//     let c =resp.body.certifications[0].certification_id
-
-//     let managerId = -1;
-
-//     for(let z = 0; z < resp.body.positions.length ; z++){
-
-//         let curr = resp.body.positions[z];
-
-//         if(curr.position_name === 'Manager') managerId = curr.position_id
-//     }
-
-//     return {manager: managerId, cert: c}
-
-// }
-
 
 
 beforeAll(commonBeforeAll)

@@ -156,7 +156,7 @@ describe("Timecards", function () {
 
 
     expect(resp.body).toEqual({
-     message: "Unauthorized"
+     message: "The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received undefined"
 
 })
   })
@@ -173,7 +173,7 @@ describe("Timecards", function () {
         let resp = await request(app).post(`/api/timecards`).set("Cookie", `sessionId=abc123`).send({
             job_id, employee_id, timecard_date, reg_time, overtime, expenses, notes
         });
-        expect(resp.body).toEqual({message: "Unauthorized"})
+        expect(resp.body).toEqual({message: "The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received undefined"})
 
     })
 

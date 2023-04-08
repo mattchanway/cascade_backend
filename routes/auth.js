@@ -111,7 +111,7 @@ router.post("/password-forgotten-update/:token", async function (req, res, next)
 
 router.get("/whoami", authenticateSessionAndCheckJwt,
     rotateSessionAndJwt,
-    ensureLoggedIn, async function (req, res, next) {
+     async function (req, res, next) {
 
         try {
 

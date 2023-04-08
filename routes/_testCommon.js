@@ -21,6 +21,8 @@ async function commonBeforeAll() {
   let startDateStr = startDate.toISOString().slice(0, 10)
   const p2Hash = await bcrypt.hash(`password2`, 10);
   const p3Hash = await bcrypt.hash(`password3`, 10)
+  let todayDate = new Date()
+  let timecardDateStr = todayDate.toISOString().split('T')[0]
 
   await db.query("DELETE FROM timecards");
   await db.query("DELETE FROM employees");
