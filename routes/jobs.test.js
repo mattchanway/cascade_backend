@@ -151,17 +151,12 @@ describe("Jobs", function () {
         let job_description = 'A test job';
         let shop_docs_link = 'nba.com';
 
-       
-
         let resp = await request(app).post(`/api/jobs`).set("Cookie", [`sessionId=${session}`, `jwt=${jwt}`]).send({
             job_id, job_name, job_address_street_line1, job_address_street_unit, job_address_street_city, job_description, shop_docs_link
 
         })
-
-        console.debug('in the main test',resp.res)
-        // let returnedJwt = getJwtHeader(resp)
-
-        // expect(returnedJwt).toEqual(jwt)
+     
+        expect(resp.header['set-cookie']).toEqual(undefined)
 
         expect(resp.body).toEqual(
             {
@@ -179,28 +174,28 @@ describe("Jobs", function () {
 
     })
 
-    // test("Employee cannot create job", async function () {
+    test("Employee cannot create job", async function () {
 
-    //     let {session, jwt} = await authenticateEmployeeAndGetSessionCookie('Joe', 'password1');
+        let {session, jwt} = await authenticateEmployeeAndGetSessionCookie('Joe', 'password1');
 
-    //     let job_id = '123';
-    //     let job_name = 'Test Job';
-    //     let job_address_street_line1 = '123 Fake St';
-    //     let job_address_street_city = 'Surrey';
-    //     let job_address_street_unit = null;
-    //     let job_description = 'A test job';
-    //     let shop_docs_link = 'nba.com';
+        let job_id = '123';
+        let job_name = 'Test Job';
+        let job_address_street_line1 = '123 Fake St';
+        let job_address_street_city = 'Surrey';
+        let job_address_street_unit = null;
+        let job_description = 'A test job';
+        let shop_docs_link = 'nba.com';
 
-    //     let resp = await request(app).post(`/api/jobs`).set("Cookie", `sessionId=${session}`).send({
-    //         job_id, job_name, job_address_street_line1, job_address_street_unit, job_address_street_city, job_description, shop_docs_link
+        let resp = await request(app).post(`/api/jobs`).set("Cookie", [`sessionId=${session}`, `jwt=${jwt}`]).send({
+            job_id, job_name, job_address_street_line1, job_address_street_unit, job_address_street_city, job_description, shop_docs_link
 
-    //     })
-    //     expect(resp.body).toEqual(
-    //         {
-    //         message: "Unauthorized"
-    //         }
-    //     )
-    // })
+        })
+        expect(resp.body).toEqual(
+            {
+            message: "Unauthorized"
+            }
+        )
+    })
 
     // test("Manager can edit job details or make job inactive", async function () {
 

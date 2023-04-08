@@ -41,7 +41,7 @@ async function rotateSessionAndJwt(req, res, next) {
 
     if (!req.cookies.sessionId || res.locals.user) return next();
     try {
-        console.log('ROTATING')
+        console.log('ROTATING', req.cookies)
         let testDecode = decodeURIComponent(req.cookies.sessionId);
         let split = testDecode.split(':.');
         let decrypted = decrypt({ iv: split[0], encryptedData: split[1] })
@@ -54,6 +54,7 @@ async function rotateSessionAndJwt(req, res, next) {
         res.cookie('jwt', encryptedJwt, { maxAge: ((1000 * 60) * 15), domain: DOMAIN_URL, secure: true, httpOnly: true });
         let payload = jwt.verify(jwtToken, SECRET_KEY)
         res.locals.user = payload
+        console.log('header check in rotate middleware', req.headers, 'cookies', req.cookies, 'res', res)
         return next();
 
     }
