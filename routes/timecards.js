@@ -1,5 +1,5 @@
 const express = require("express");
-const { authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureManager } = require("../middleware/middlewareAuth");
+const { authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureManager } = require("../middleware/middleware");
 const EmployeeManager = require("../models/EmployeeManager");
 const router = express.Router();
 const TimecardsManager = require("../models/TimecardsManager");

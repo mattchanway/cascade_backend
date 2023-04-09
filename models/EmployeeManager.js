@@ -100,7 +100,7 @@ class EmployeeManager {
 
             const result = await db.query(`SELECT * FROM employees WHERE employee_id = $1`, [id]);
             const user = result.rows[0];
-
+            console.log('INSIDE USERAUTHENTICATE', user)
 
             if (user) {
                 const isValid = await bcrypt.compare(password, user.password);

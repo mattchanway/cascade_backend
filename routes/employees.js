@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureCorrectUserOrManager, ensureManager, ensureCorrectUser } = require("../middleware/middlewareAuth");
+const { authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureCorrectUserOrManager, ensureManager, ensureCorrectUser } = require("../middleware/middleware");
 const EmployeeManager = require("../models/EmployeeManager");
 
 
@@ -9,7 +9,7 @@ const EmployeeManager = require("../models/EmployeeManager");
 router.get("/", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureManager, async function (req, res, next) {
 
     try {
-        
+
         let result = await EmployeeManager.getAllEmployees();
         return res.json(result);
     }
@@ -52,7 +52,7 @@ router.get("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLo
 router.post("/", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureManager, async function (req, res, next) {
 
     try {
-        
+
         let result = await EmployeeManager.addEmployee(req.body);
         return res.json(result);
     }
@@ -82,7 +82,7 @@ router.patch("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensure
     try {
 
         let id = req.params.id;
-       
+
         let result = await EmployeeManager.updateInternalPassword(id, req.body.password, req.body.firstLogin);
 
         return res.json(result);

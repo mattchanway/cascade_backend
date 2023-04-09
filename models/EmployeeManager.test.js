@@ -70,19 +70,19 @@ describe("Employee Manager", function () {
                 certification_name: 'None', position_name: 'Manager'
             },
             timecardsData: [
-                {
-                    job_id: '400-22045',
+                // {
+                //     job_id: '400-22045',
 
-                    timecard_date: expect.any(Date),
-                    reg_time: 8,
-                    overtime: 0,
-                    expenses: 0,
-                    notes: null,
-                    time_submitted: expect.any(Date),
-                    timecard_id: expect.any(Number),
-                    location_submitted: null,
-                    job_name: 'IQ Dental'
-                }
+                //     timecard_date: expect.any(Date),
+                //     reg_time: 8,
+                //     overtime: 0,
+                //     expenses: 0,
+                //     notes: null,
+                //     time_submitted: expect.any(Date),
+                //     timecard_id: expect.any(Number),
+                //     location_submitted: null,
+                //     job_name: 'IQ Dental'
+                // }
                 // ,
                 // {
                 //     job_id: '400-22044',

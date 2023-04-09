@@ -4,7 +4,7 @@ const EmployeeManager = require("../models/EmployeeManager");
 const jwt = require("jsonwebtoken");
 const { authenticateSessionAndCheckJwt,
     rotateSessionAndJwt,
-    ensureLoggedIn } = require("../middleware/middlewareAuth");
+    ensureLoggedIn } = require("../middleware/middleware");
 const { SECRET_KEY } = require("../config");
 const { encrypt, decrypt } = require('../encryption');
 const DOMAIN_URL = process.env.NODE_ENV === 'production' ? '.cascademetaldesign.work' : 'localhost'
@@ -22,14 +22,14 @@ router.post("/", async function (req, res, next) {
         const { id, password } = req.body;
 
         let result = await EmployeeManager.authenticate(id, password);
-     
+
 
         if (result !== false) {
             // this is old, before authenticate returned an encrypted token
             // let encrypted = encrypt(result.session_id);
             let encrypted = encrypt(result.session_id)
             let encryptedJwt = encrypt(result.jwtToken)
-         
+
             res.cookie('sessionId', encrypted, { maxAge: ((1000 * 60) * 420), domain: DOMAIN_URL, secure: true, httpOnly: true });
             res.cookie('jwt', encryptedJwt, { maxAge: ((1000 * 60) * 15), domain: DOMAIN_URL, secure: true, httpOnly: true });
             delete result.jwtToken
@@ -111,7 +111,7 @@ router.post("/password-forgotten-update/:token", async function (req, res, next)
 
 router.get("/whoami", authenticateSessionAndCheckJwt,
     rotateSessionAndJwt,
-     async function (req, res, next) {
+    async function (req, res, next) {
 
         try {
 

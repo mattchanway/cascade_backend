@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const JobsManager = require("../models/JobsManager");
-const { authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureCorrectUserOrManager, ensureManager } = require("../middleware/middlewareAuth");
+const { authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureCorrectUserOrManager, ensureManager } = require("../middleware/middleware");
 
 
 // GET / get all jobs
 
-router.get("/",authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn,  async function (req, res, next) {
+router.get("/", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, async function (req, res, next) {
 
     try {
-        if(!req.cookies.sessionId) return res.json({noUser:'No User'});
+        if (!req.cookies.sessionId) return res.json({ noUser: 'No User' });
         let result = await JobsManager.getAllJobs();
         return res.json(result);
     }
@@ -19,10 +19,10 @@ router.get("/",authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLogged
     }
 });
 
-router.get("/:id",authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, async function (req, res, next) {
+router.get("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, async function (req, res, next) {
 
     try {
-        
+
         let id = req.params.id;
 
         let result = await JobsManager.getJob(id);
@@ -39,10 +39,10 @@ router.post("/", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureMana
 
     try {
 
-        
+
         let result = await JobsManager.addJob(req.body);
-       
-    
+
+
         return res.json(result);
     }
     catch (err) {
@@ -68,7 +68,7 @@ router.put("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureMa
 router.patch("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureManager, async function (req, res, next) {
 
     try {
-        
+
         let id = req.params.id;
         let result = await JobsManager.updateJobStatus(id, req.body.status);
 
