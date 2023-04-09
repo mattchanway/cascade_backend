@@ -214,7 +214,7 @@ class TimecardsManager {
 
 
         try {
-            let { fromDate, toDate, employeeId, jobId, overtime } = data;
+            let { fromDate, toDate, employeeId, jobId } = data;
           
             let query = `SELECT timecards.timecard_id, timecards.job_id, timecards.employee_id, timecards.timecard_date, timecards.reg_time,
             timecards.overtime, timecards.expenses, timecards.time_submitted, timecards.location_submitted, timecards.notes, jobs.job_name, 
@@ -236,11 +236,7 @@ class TimecardsManager {
                 queryValues.push(jobId);
                 whereExpressions.push(`timecards.job_id = $${queryValues.length}`);
             }
-            if (overtime) {
-
-                whereExpressions.push(`overtime > 0`)
-            }
-
+          
             if (whereExpressions.length > 0) {
                 query += " WHERE " + whereExpressions.join(" AND ");
 
@@ -257,7 +253,7 @@ class TimecardsManager {
                 totalExp += curr.expenses
             }
 
-
+            console.log(result.rows, query)
             return {table :result.rows, summary: {totalOT, totalReg, totalExp}};
         }
         catch (e) {
