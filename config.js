@@ -1,7 +1,7 @@
 const SECRET_KEY = process.env.SECRET_KEY || "secret-dev";
-const CRYPTO_PASSWORD = 'xq]nm,Vf7-$vU(HYwRc2s^W<nNZ@7,';
-const CRYPTO_ALGORITHM = 'aes-192-cbc';
-const SALT = 'yaMBf5=Jb(yNUnWJU5.0V?8G';
+const CRYPTO_PASSWORD = process.env.CRYPTO_PASSWORD || 'secret-password';
+const CRYPTO_ALGORITHM = process.env.CRYPTO_ALGORITHM || 'aes-192-cbc';
+const SALT = process.env.SALT || '123456789101234567891234';
 
 require("dotenv").config();
 
