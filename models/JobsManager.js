@@ -7,7 +7,7 @@ class JobsManager {
     static async getAllJobs() {
         try {
             const result = await db.query(`
-        SELECT * from jobs WHERE active = true`);
+        SELECT * from jobs WHERE active = true ORDER BY job_name ASC`);
 
             return result.rows;
         }
