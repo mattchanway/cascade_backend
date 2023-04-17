@@ -124,7 +124,7 @@ function ensureCorrectUser(req, res, next) {
     try {
         const user = res.locals.user;
 
-        if ((user.employee_id !== +req.params.id)) {
+        if ((+user.employee_id !== +req.params.id)) {
             throw new Error("Unauthorized, must be same user");
         }
         return next();

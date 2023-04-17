@@ -77,7 +77,7 @@ router.put("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureMa
     }
 });
 
-router.patch("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, async function (req, res, next) {
+router.patch("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
 
     try {
 

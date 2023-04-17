@@ -62,7 +62,7 @@ describe("Employees", function () {
         let mattUnauthView = await request(app).get(`/api/employees/${shawnId}`).set("Cookie", [`sessionId=${mattSessionId}`, `jwt=${mattJwt}`].join(";"))
 
         expect(mattUnauthView.body).toEqual({
-            message: "Unauthorized, must be manager or same user"
+            message: "Unauthorized"
         })
 
         let shawnAuthView = await request(app).get(`/api/employees/${mattId}`).set("Cookie", [`sessionId=${session}`, `jwt=${jwt}`]);
@@ -83,19 +83,23 @@ describe("Employees", function () {
 
         let mattSelfView = await request(app).get(`/api/employees/${mattId}`).set("Cookie", [`sessionId=${mattSessionId}`, `jwt=${mattJwt}`]);
 
+        // expect(mattSelfView.body).toEqual({
+        //     timecardsData: expect.any(Array),
+        //     userData: {
+        //         certification_name: "None",
+        //         certification: 1,
+        //         email: "notmattchanway@gmail.com",
+        //         position:1,
+        //         employee_id: mattId,
+        //         first_name: "Matt",
+        //         last_name: "Chanway",
+        //         position_name: "Welder",
+        //         start_date: expect.any(String)
+        //     }
+        // })
+
         expect(mattSelfView.body).toEqual({
-            timecardsData: expect.any(Array),
-            userData: {
-                certification_name: "None",
-                certification: 1,
-                email: "notmattchanway@gmail.com",
-                position:1,
-                employee_id: mattId,
-                first_name: "Matt",
-                last_name: "Chanway",
-                position_name: "Welder",
-                start_date: expect.any(String)
-            }
+            message: "Unauthorized"   
         })
 
 

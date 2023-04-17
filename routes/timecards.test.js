@@ -403,7 +403,7 @@ describe("Timecards", function () {
         let edit = await request(app).get(`/api/timecards/filter?fromDate=2023-01-01&toDate=2023-04-01`).set("Cookie", `sessionId=${joeSession.session}`);
 
         expect(edit.body).toEqual({
-            message: "Unauthorized"
+            message: "Unauthorized, must be manager or same user"
         })
         
     })
