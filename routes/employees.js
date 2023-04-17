@@ -33,7 +33,7 @@ router.get("/params", async function (req, res, next) {
     }
 });
 
-router.get("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureCorrectUserOrManager, async function (req, res, next) {
+router.get("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureManager, async function (req, res, next) {
 
     try {
         let id = req.params.id;

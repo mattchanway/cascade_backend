@@ -1,5 +1,6 @@
 const express = require("express");
-const { authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureManager } = require("../middleware/middleware");
+const { authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureManager,
+ensureCorrectUserOrManager } = require("../middleware/middleware");
 const EmployeeManager = require("../models/EmployeeManager");
 const router = express.Router();
 const TimecardsManager = require("../models/TimecardsManager");
@@ -149,7 +150,7 @@ router.get("/jobs-report", async function (req, res, next) {
     }
 });
 
-router.get("/filter", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureManager, async function (req, res, next) {
+router.get("/filter", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureCorrectUserOrManager, async function (req, res, next) {
 
     try {
 

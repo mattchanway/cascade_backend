@@ -111,7 +111,7 @@ function ensureCorrectUserOrManager(req, res, next) {
     try {
         const user = res.locals.user;
 
-        if ((user.position !== 3 && user.employee_id !== +req.params.id)) {
+        if ((user.position !== 3 && user.employee_id !== +req.params.employeeId)) {
             throw new Error("Unauthorized, must be manager or same user");
         }
         return next();
