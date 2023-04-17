@@ -56,7 +56,7 @@ router.put("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureMa
     try {
         let id = req.params.id;
         let result = await JobsManager.editJob(req.body, id);
-
+       
         return res.json(result);
     }
     catch (err) {
