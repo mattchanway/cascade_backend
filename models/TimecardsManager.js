@@ -210,6 +210,41 @@ class TimecardsManager {
         }
     }
 
+    static async summaryReport(data){
+
+        try{
+
+            let {fromDate, toDate, excludedEmployees} = data;
+            let queryValues = [fromDate, toDate]
+            
+            let exclusionStr = excludedEmployees.length ? ' AND timecards.employee_id NOT IN (' : ' ';
+            for(let i = 0 ; i < excludedEmployees.length ; i++){
+                let id = excludedEmployees[i];
+                queryValues.push(id)
+                let queryAdd = i < excludedEmployees.length-1 ? `$${i+3}, `: `$${i+3}) `
+                exclusionStr += queryAdd;
+            }
+
+            let query = `SELECT timecards.job_id, timecards.employee_id, SUM(timecards.reg_time) AS reg_time_total,
+            SUM(timecards.overtime) AS overtime_total, SUM(timecards.expenses) AS expenses_total, 
+             FROM timecards JOIN jobs ON timecards.job_id = jobs.job_id
+             WHERE timecards.timecard_date >= $1 AND
+             timecards.timecard_date <= $2${exclusionStr}GROUP BY jobs.job_name`;
+
+            let result = await db.query(query, queryValues)
+            return result.rows
+
+        }
+
+        catch(e){
+            throw e
+
+        }
+
+
+
+    }
+
     static async filterSearch(data) {
 
 

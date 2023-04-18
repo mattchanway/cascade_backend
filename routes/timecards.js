@@ -164,6 +164,20 @@ router.get("/filter", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensur
     }
 });
 
+router.get("/reports/job-summary", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureManager, async function (req, res, next) {
+
+    try {
+
+        let result = await TimecardsManager.summaryReport(req.query);
+        console.log(req.query)
+        return res.json(result);
+    }
+    catch (err) {
+
+        return next(err);
+    }
+});
+
 router.get("/form-populate", async function (req, res, next) {
 
     try {
