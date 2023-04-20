@@ -29,7 +29,7 @@ class EmployeeManager {
 
             const result = await db.query(`
         SELECT t.job_id, t.reg_time, t.overtime, t.expenses, t.notes, t.location_submitted, t.timecard_date,
-        t.time_submitted, t.timecard_id, e.employee_id, e.email, e.first_name, e.last_name, e.start_date, e.position, e.certification,
+        t.time_submitted, t.timecard_id, e.employee_id, e.active , e.email, e.first_name, e.last_name, e.start_date, e.position, e.certification,
         j.job_name, p.position_name, c.certification_name from timecards t 
         join employees e on t.employee_id = e.employee_id
         join jobs j on t.job_id = j.job_id
@@ -41,7 +41,7 @@ class EmployeeManager {
 
             if (!result.rows.length) {
 
-                let newResult = await db.query(`SELECT e.employee_id, e.email, e.first_name, e.last_name, e.start_date, e.position, e.email,
+                let newResult = await db.query(`SELECT e.employee_id, e.email, e.first_name, e.active ,e.last_name, e.start_date, e.position, e.email,
                 e.certification, p.position_name, c.certification_name from employees e 
                  join  positions p on p.position_id = e.position
                  join certifications c on c.certification_id = e.certification
@@ -54,6 +54,7 @@ class EmployeeManager {
             let row1 = result.rows[0]
             let userData = {
                 first_name: row1.first_name, last_name: row1.last_name, certification_name: row1.certification_name,
+                active: row1.active,
                 email: row1.email, position: row1.position, certification: row1.certification,
                 position_name: row1.position_name, start_date: row1.start_date, employee_id: row1.employee_id
             }

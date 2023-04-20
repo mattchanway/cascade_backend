@@ -215,7 +215,9 @@ class TimecardsManager {
         try{
 
             let {fromDate, toDate, excludedEmployees} = data;
-            let queryValues = [fromDate, toDate]
+            let queryValues = [fromDate, toDate];
+
+            if(!excludedEmployees) excludedEmployees = []
             
             let exclusionStr = excludedEmployees.length ? ' AND timecards.employee_id NOT IN (' : ' ';
             for(let i = 0 ; i < excludedEmployees.length ; i++){
@@ -225,11 +227,11 @@ class TimecardsManager {
                 exclusionStr += queryAdd;
             }
 
-            let query = `SELECT timecards.job_id, timecards.employee_id, SUM(timecards.reg_time) AS reg_time_total,
-            SUM(timecards.overtime) AS overtime_total, SUM(timecards.expenses) AS expenses_total, 
+            let query = `SELECT timecards.job_id, jobs.job_name, SUM(timecards.reg_time) AS reg_time_total,
+            SUM(timecards.overtime) AS overtime_total, SUM(timecards.expenses) AS expenses_total
              FROM timecards JOIN jobs ON timecards.job_id = jobs.job_id
              WHERE timecards.timecard_date >= $1 AND
-             timecards.timecard_date <= $2${exclusionStr}GROUP BY jobs.job_name`;
+             timecards.timecard_date <= $2${exclusionStr}GROUP BY jobs.job_name, timecards.job_id`;
 
             let result = await db.query(query, queryValues)
             return result.rows
@@ -237,6 +239,7 @@ class TimecardsManager {
         }
 
         catch(e){
+            console.log(e)
             throw e
 
         }

@@ -93,6 +93,23 @@ router.patch("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensure
     }
 });
 
+router.patch("/status/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureManager, async function (req, res, next) {
+
+    try {
+
+        let id = req.params.id;
+
+        let result = await EmployeeManager.updateEmployeeStatus(id, req.body.status);
+        console.log(result)
+        return res.json(result);
+
+    }
+    catch (err) {
+        console.log(err)
+        return next(err);
+    }
+});
+
 router.delete("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureManager, async function (req, res, next) {
 
     try {
