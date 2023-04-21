@@ -8,10 +8,11 @@ const { encrypt, decrypt } = require('../encryption');
 class EmployeeManager {
 
     static async getAllEmployees() {
+        // GET ALL ACTIVE EMPLOYEES
         try {
             const result = await db.query(`
         SELECT certification, email, employee_id, first_login,
-        first_name, last_name, position, start_date from employees ORDER BY last_name asc`);
+        first_name, last_name, position, start_date from employees WHERE active =true ORDER BY last_name asc`);
 
             return result.rows;
         }
@@ -19,6 +20,22 @@ class EmployeeManager {
             throw e;
         }
     }
+
+    static async getAllInactiveEmployees() {
+        // GET ALL INACTIVE EMPLOYEES
+        try {
+            const result = await db.query(`
+        SELECT certification, email, employee_id, first_login,
+        first_name, last_name, position, start_date from employees WHERE active =false ORDER BY last_name asc`);
+
+            return result.rows;
+        }
+        catch (e) {
+            throw e;
+        }
+    }
+
+
 
     static async getEmployee(id) {
         try {
@@ -374,7 +391,7 @@ class EmployeeManager {
     }
 
     static async updateEmployeeStatus(employeeId, status) {
-
+        console.log('method', status )
         try {
 
             const result = await db.query(`

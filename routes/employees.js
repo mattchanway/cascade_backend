@@ -19,6 +19,19 @@ router.get("/", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLogge
     }
 });
 
+router.get("/directory/inactive", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, ensureManager, async function (req, res, next) {
+
+    try {
+
+        let result = await EmployeeManager.getAllInactiveEmployees();
+        return res.json(result);
+    }
+    catch (err) {
+        console.log(err)
+        return next(err);
+    }
+});
+
 
 
 router.get("/params", async function (req, res, next) {
