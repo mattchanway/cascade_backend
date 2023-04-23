@@ -67,7 +67,7 @@ describe("Employee Manager", function () {
             userData: {
                 "certification": 1, "email": "matthewchanway@gmail.com", "employee_id": shawnId,
                 "first_name": "Shawn", "last_name": "Rostas", "position": 3, "start_date": expect.any(Date),
-                certification_name: 'None', position_name: 'Manager'
+                certification_name: 'None', position_name: 'Manager', active:true
             },
             timecardsData: [
                 // {
@@ -304,13 +304,29 @@ describe("Employee Manager", function () {
 
         let joeId = await getEmployeeId('Joe')
         let data = { first_name: 'Joeedited', last_name: 'Testedit', position: 1, certification: 1, start_date: '2023-01-02', email: 'joenewemail@gmail.com' }
-
+        
         let resp = await EmployeeManager.updateEmployeeStatus(+joeId, false);
+
+
 
         expect(resp).toEqual({
             employee_id: expect.any(Number),
             "first_name": "Joe", "last_name": "Test", active: false
         })
+
+    })
+
+    test("updateEmployeeStatus - invalid data", async function () {
+
+     
+      
+        try{
+        let resp = await EmployeeManager.updateEmployeeStatus(0, false);
+        }
+        catch(e){
+            expect(e).toEqual(new Error('Employee not found'))
+        }
+      
 
     })
 

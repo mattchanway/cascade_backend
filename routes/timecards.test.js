@@ -408,6 +408,85 @@ describe("Timecards", function () {
         
     })
 
+    // **********************
+
+    test("Summary search - all employees", async function () {
+      let shawnSession = await authenticateEmployeeAndGetSessionCookie('Shawn', 'password1');
+      
+      let res = await request(app).get(`/api/timecards/reports/job-summary?fromDate=2023-03-09&toDate=2023-03-10`).set("Cookie", `sessionId=${shawnSession.session}`);
+
+      expect(res.body).toEqual(
+         [
+          {job_name: 'Dr. Oonchi',
+          job_id: '400-22044',
+          reg_time_total:16,
+          overtime_total:0,
+          expenses_total:0},
+          {job_name: 'IQ Dental',
+          job_id: '400-22045',
+          reg_time_total:16,
+          overtime_total:0,
+          expenses_total:0}
+         ]
+      ) })
+
+      test("Summary search - exclude one employee", async function () {
+
+          let shawnId = await getEmployeeId('Shawn')
+          let joeId = await getEmployeeId('Joe')
+          let shawnSession = await authenticateEmployeeAndGetSessionCookie('Shawn', 'password1');
+      
+      // let res = await request(app).get(`/api/timecards/reports/job-summary?fromDate=2023-03-09&toDate=2023-03-10&excludedEmployees=${[shawnId]}`).set("Cookie", `sessionId=${shawnSession.session}`);
+
+      let res = await request(app).get(`/api/timecards/reports/job-summary`).query({
+        fromDate: '2023-03-09',
+        toDate: '2023-03-10',
+        excludedEmployees: [shawnId, joeId]
+      }).set("Cookie", `sessionId=${shawnSession.session}`);
+
+          expect(res.body).toEqual(
+             [
+              {job_name: 'Dr. Oonchi',
+              job_id: '400-22044',
+              reg_time_total:8,
+              overtime_total:0,
+              expenses_total:0},
+              {job_name: 'IQ Dental',
+              job_id: '400-22045',
+              reg_time_total:8,
+              overtime_total:0,
+              expenses_total:0}
+             ]
+          ) })
+
+          // test("Summary search - error date range incomplete", async function () {
+
+          //     let shawnId = await getEmployeeId('Shawn')
+          //     let data = { fromDate: '2023-03-09', excludedEmployees: [shawnId]}
+          //     try{
+          //     let res = await TimecardsManager.summaryReport(data);
+          //     expect(res).toEqual(
+          //        [
+          //         {job_name: 'Dr. Oonchi',
+          //         job_id: '400-22044',
+          //         reg_time_total:8,
+          //         overtime_total:0,
+          //         expenses_total:0},
+          //         {job_name: 'IQ Dental',
+          //         job_id: '400-22045',
+          //         reg_time_total:8,
+          //         overtime_total:0,
+          //         expenses_total:0}
+          //        ]
+          //     )
+          //     }
+          //     catch(e){
+          //         expect(e).toEqual(new Error('Date range incomplete.'))
+
+          //     }
+          
+          // })
+
     
 
 

@@ -396,7 +396,9 @@ class EmployeeManager {
 
             const result = await db.query(`
         UPDATE employees set active = $1 WHERE employee_id = $2 returning employee_id, first_name, last_name, active`, [status, employeeId]);
+            if(!result.rows.length) throw new Error('Employee not found')
             return result.rows[0];
+        
         }
         catch (e) {
 

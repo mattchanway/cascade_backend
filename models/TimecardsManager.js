@@ -215,6 +215,7 @@ class TimecardsManager {
         try{
 
             let {fromDate, toDate, excludedEmployees} = data;
+            if(!fromDate || !toDate) throw new Error('Date range incomplete.')
             let queryValues = [fromDate, toDate];
 
             if(!excludedEmployees) excludedEmployees = []
@@ -226,12 +227,14 @@ class TimecardsManager {
                 let queryAdd = i < excludedEmployees.length-1 ? `$${i+3}, `: `$${i+3}) `
                 exclusionStr += queryAdd;
             }
-
+            console.log(queryValues)
             let query = `SELECT timecards.job_id, jobs.job_name, SUM(timecards.reg_time) AS reg_time_total,
             SUM(timecards.overtime) AS overtime_total, SUM(timecards.expenses) AS expenses_total
              FROM timecards JOIN jobs ON timecards.job_id = jobs.job_id
              WHERE timecards.timecard_date >= $1 AND
              timecards.timecard_date <= $2${exclusionStr}GROUP BY jobs.job_name, timecards.job_id`;
+
+            
 
             let result = await db.query(query, queryValues)
             return result.rows

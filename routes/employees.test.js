@@ -37,7 +37,7 @@ afterAll(commonAfterAll);
 
 describe("Employees", function () {
 
-    test("Manager creating a new labourer, labourer CANNOT access his manager's profile, manager CAN access labourer", async function () {
+    test("Manager creating a new labourer, labourer CANNOT profile, manager CAN access labourer", async function () {
 
 
         let {session, jwt} = await authenticateEmployeeAndGetSessionCookie('Shawn', 'password1');
@@ -71,6 +71,7 @@ describe("Employees", function () {
             userData: {
                 certification_name: "None",
                 certification: 1,
+                active:true,
                 email: "notmattchanway@gmail.com",
                 position: 1,
                 employee_id: mattId,
@@ -82,21 +83,6 @@ describe("Employees", function () {
         })
 
         let mattSelfView = await request(app).get(`/api/employees/${mattId}`).set("Cookie", [`sessionId=${mattSessionId}`, `jwt=${mattJwt}`]);
-
-        // expect(mattSelfView.body).toEqual({
-        //     timecardsData: expect.any(Array),
-        //     userData: {
-        //         certification_name: "None",
-        //         certification: 1,
-        //         email: "notmattchanway@gmail.com",
-        //         position:1,
-        //         employee_id: mattId,
-        //         first_name: "Matt",
-        //         last_name: "Chanway",
-        //         position_name: "Welder",
-        //         start_date: expect.any(String)
-        //     }
-        // })
 
         expect(mattSelfView.body).toEqual({
             message: "Unauthorized"   
@@ -219,6 +205,75 @@ describe("Employees", function () {
         )
       
 
+    })
+
+    test("Non-manager cannot create employee", async function () {
+
+
+        let {session, jwt} = await authenticateEmployeeAndGetSessionCookie('Joe', 'password1');
+
+
+        let addNewEmpResp = await request(app).post("/api/employees").set("Cookie", [`sessionId=${session}`, `jwt=${jwt}`]).send({
+            first_name: 'Cant', last_name: 'Create', email: 'notmattchanway@gmail.com', position: 1, certification: 1, start_date: '2023-01-01'
+        })
+
+        expect(addNewEmpResp.body).toEqual({
+            message: 'Unauthorized'
+            
+        })
+        
+
+    })
+
+    test("Manager can update employee status", async function () {
+
+
+        let {session, jwt} = await authenticateEmployeeAndGetSessionCookie('Shawn', 'password1');
+        let joeId = await getEmployeeId('Joe')
+
+        let addNewEmpResp = await request(app).patch(`/api/employees/status/${joeId}`).set("Cookie", [`sessionId=${session}`, `jwt=${jwt}`]).send({
+            status: false
+        })
+        expect(addNewEmpResp.body).toEqual({
+            active: false,
+            employee_id: expect.any(Number),
+            first_name: 'Joe',
+            last_name: 'Test'
+            
+        })
+        
+    })
+
+    test("Manager cannot update non-existing employee status", async function () {
+
+
+        let {session, jwt} = await authenticateEmployeeAndGetSessionCookie('Shawn', 'password1');
+      
+
+        let addNewEmpResp = await request(app).patch(`/api/employees/status/0`).set("Cookie", [`sessionId=${session}`, `jwt=${jwt}`]).send({
+            status: false
+        })
+        expect(addNewEmpResp.body).toEqual({
+           message: 'Employee not found'
+            
+        })
+        
+    })
+
+    test("Non-manager cannot update employee status", async function () {
+
+
+        let {session, jwt} = await authenticateEmployeeAndGetSessionCookie('Joe', 'password1');
+        let joeId = await getEmployeeId('Joe')
+
+        let addNewEmpResp = await request(app).patch(`/api/employees/status/${joeId}`).set("Cookie", [`sessionId=${session}`, `jwt=${jwt}`]).send({
+            status: false
+        })
+        expect(addNewEmpResp.body).toEqual({
+            message: 'Unauthorized'
+            
+        })
+        
     })
 
 

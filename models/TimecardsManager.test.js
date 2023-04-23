@@ -123,9 +123,6 @@ describe("Job Manager", function () {
         let shawnId = await getEmployeeId('Shawn');
         let data = { fromDate: '2023-03-08', toDate: '2023-03-12', jobId: '400-22044', employeeId: +shawnId }
         let allTimecards = await TimecardsManager.filterSearch(data);
-        
-
-
         expect(allTimecards).toEqual({
             table: [
                 {
@@ -134,7 +131,6 @@ describe("Job Manager", function () {
                     time_submitted: expect.any(Date),
                     employee_id: expect.any(Number), timecard_date: expect.any(Date), reg_time: 8, overtime: 0, expenses: 0, notes: null
                 }
-
             ],
             summary: {
                 totalOT: 0,
@@ -143,8 +139,6 @@ describe("Job Manager", function () {
             }
         }
         )
-    
-
     })
 
     test("Add timecard", async function () {
@@ -253,6 +247,78 @@ describe("Job Manager", function () {
         )
 
     })
+
+
+    test("Summary search - all employees", async function () {
+
+      
+        let data = { fromDate: '2023-03-09', toDate: '2023-03-10'}
+        let res = await TimecardsManager.summaryReport(data);
+        expect(res).toEqual(
+           [
+            {job_name: 'Dr. Oonchi',
+            job_id: '400-22044',
+            reg_time_total:16,
+            overtime_total:0,
+            expenses_total:0},
+            {job_name: 'IQ Dental',
+            job_id: '400-22045',
+            reg_time_total:16,
+            overtime_total:0,
+            expenses_total:0}
+           ]
+        ) })
+
+        test("Summary search - exclude one employee", async function () {
+
+            let shawnId = await getEmployeeId('Shawn')
+            let data = { fromDate: '2023-03-09', toDate: '2023-03-10', excludedEmployees: [shawnId]}
+            let res = await TimecardsManager.summaryReport(data);
+            expect(res).toEqual(
+               [
+                {job_name: 'Dr. Oonchi',
+                job_id: '400-22044',
+                reg_time_total:8,
+                overtime_total:0,
+                expenses_total:0},
+                {job_name: 'IQ Dental',
+                job_id: '400-22045',
+                reg_time_total:8,
+                overtime_total:0,
+                expenses_total:0}
+               ]
+            ) })
+
+            test("Summary search - error date range incomplete", async function () {
+
+                let shawnId = await getEmployeeId('Shawn')
+                let data = { fromDate: '2023-03-09', excludedEmployees: [shawnId]}
+                try{
+                let res = await TimecardsManager.summaryReport(data);
+                expect(res).toEqual(
+                   [
+                    {job_name: 'Dr. Oonchi',
+                    job_id: '400-22044',
+                    reg_time_total:8,
+                    overtime_total:0,
+                    expenses_total:0},
+                    {job_name: 'IQ Dental',
+                    job_id: '400-22045',
+                    reg_time_total:8,
+                    overtime_total:0,
+                    expenses_total:0}
+                   ]
+                )
+                }
+                catch(e){
+                    expect(e).toEqual(new Error('Date range incomplete.'))
+
+                }
+            
+            })
+
+
+
 
 
 })
