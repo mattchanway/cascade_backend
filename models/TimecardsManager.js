@@ -215,10 +215,15 @@ class TimecardsManager {
         try{
 
             let {fromDate, toDate, excludedEmployees} = data;
+            
             if(!fromDate || !toDate) throw new Error('Date range incomplete.')
             let queryValues = [fromDate, toDate];
-
             if(!excludedEmployees) excludedEmployees = []
+            else if(!Array.isArray(excludedEmployees)) {
+                let temp = [excludedEmployees]
+                excludedEmployees = temp
+            }
+            
             
             let exclusionStr = excludedEmployees.length ? ' AND timecards.employee_id NOT IN (' : ' ';
             for(let i = 0 ; i < excludedEmployees.length ; i++){
