@@ -36,20 +36,21 @@ router.get("/reports/weekly/:id", authenticateSessionAndCheckJwt, rotateSessionA
     }
 });
 
-// router.get("/indiv/:id", async function (req, res, next) {
+router.get("/indiv", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureManager, async function (req, res, next) {
 
-//     try {
-//         let id = req.params.id;
+    try {
+        console.log('in route', req.query)
+        let {employeeId, date} = req.query;
 
-//         let result = await TimecardsManager.getTimecard(id);
+        let result = await TimecardsManager.getTimecard(employeeId, date);
 
-//         return res.json(result);
-//     }
-//     catch (err) {
+        return res.json(result);
+    }
+    catch (err) {
 
-//         return next(err);
-//     }
-// });
+        return next(err);
+    }
+});
 
 router.post("/", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureLoggedIn, async function (req, res, next) {
 

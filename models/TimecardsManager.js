@@ -17,14 +17,17 @@ class TimecardsManager {
         }
     }
 
-    static async getTimecard(id) {
+    static async getTimecard(employeeId, date) {
         try {
             const result = await db.query(`
-        SELECT * from timecards WHERE timecard_id = $1`, [id]);
-
-            return result.rows[0];
+        SELECT t.timecard_id, t.employee_id, t.job_id, 
+        t.timecard_date, t.reg_time, t.overtime, t.expenses, t.notes,
+        e.first_name, e.last_name FROM timecards t join employees e ON t.employee_id = e.employee_id WHERE t.employee_id = $1 AND t.timecard_date = $2`, [employeeId, date]);
+            console.log('res,',result.rows, employeeId, date)
+            return result.rows;
         }
         catch (e) {
+            console.log(e)
             throw e;
         }
     }
