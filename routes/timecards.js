@@ -92,7 +92,7 @@ router.put("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureMa
     }
 });
 
-router.delete("/:id", async function (req, res, next) {
+router.delete("/:id", authenticateSessionAndCheckJwt, rotateSessionAndJwt, ensureManager, async function (req, res, next) {
 
     try {
         let id = req.params.id;
