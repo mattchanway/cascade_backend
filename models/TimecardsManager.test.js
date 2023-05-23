@@ -241,9 +241,9 @@ describe("Job Manager", function () {
         let id = sample.timecard_id
 
         await TimecardsManager.deleteTimecard(id);
-        let test = await TimecardsManager.getTimecard(id)
+        let secondQuery = await TimecardsManager.getAllTimecards()
 
-        expect(test).toEqual(undefined
+        expect(secondQuery.length).toEqual(allTimecards.length-1
         )
 
     })
